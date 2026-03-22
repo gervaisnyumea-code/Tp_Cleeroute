@@ -1,1 +1,8 @@
 node_modules
+
+# Variables locales (ne jamais commiter de secrets)
+.env
+
+# Fichiers auxiliaires SQLite (journal) — optionnel : évite du bruit dans git status
+blog.db-shm
+blog.db-wal

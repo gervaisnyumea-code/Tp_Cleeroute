@@ -1,0 +1,19 @@
+# =============================================================================
+# Blueprint Render — à la RACINE du dépôt Git (requis par Render)
+# =============================================================================
+# Si ton dépôt Git ne contient QUE le dossier Blog-api, déplace ce fichier
+# dans Blog-api/ et supprime la clé rootDir ci-dessous.
+# =============================================================================
+
+services:
+  - type: web
+    name: blog-api-inf222
+    runtime: node
+    # Dossier du projet Node (npm install / server.js) dans ce monorepo.
+    rootDir: Blog-api
+    buildCommand: npm install
+    startCommand: npm start
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production

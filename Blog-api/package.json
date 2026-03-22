@@ -1,8 +1,11 @@
 {
   "name": "blog-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "API REST Blog INF222 — Express + SQLite, prête pour Render",
   "main": "server.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"

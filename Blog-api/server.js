@@ -1,59 +1,79 @@
+/**
+ * =============================================================================
+ * server.js — Point d'entrée de l'API Blog (Express)
+ * =============================================================================
+ * Rôle :
+ *   - Charger la configuration (.env) pour le port et les URLs en production.
+ *   - Créer l'application Express, brancher middlewares, routes et Swagger.
+ *   - Démarrer le serveur HTTP en écoutant sur le bon port et la bonne interface.
+ *
+ * Déploiement Render :
+ *   - Render définit process.env.PORT (obligatoire : ne pas coder un port fixe).
+ *   - L'écoute sur '0.0.0.0' permet d'accepter les connexions depuis l'extérieur
+ *     du conteneur (requis sur la plupart des PaaS / Docker).
+ * =============================================================================
+ */
+
+// Charge les variables depuis un fichier .env à la racine de Blog-api (développement local).
+// Sur Render, les variables sont injectées par le tableau de bord ; dotenv ne trouve pas
+// de fichier : ce n'est pas grave, process.env contient déjà PORT, etc.
 require('dotenv').config();
 
-// Les ligness du haut pour le chargement des variables d'environnement et la définition du port d'écoute du serveur sur le port 4000.
-// server.js
-
 const express = require('express');
-const cors    = require('cors');
+const cors = require('cors');
 
-// Import des routes
+// Routes REST des articles : préfixe /api/articles (voir routes/articleRoutes.js).
 const articleRoutes = require('./routes/articleRoutes');
 
-// Import de la configuration Swagger
+// UI interactive de documentation OpenAPI (Swagger UI) + spec générée depuis les JSDoc des routes.
 const { swaggerUi, swaggerSpec } = require('./swagger/swagger');
 
-// Initialise la base de données (création de la table si besoin)
+// Effet de bord au chargement : connexion SQLite + CREATE TABLE IF NOT EXISTS.
 require('./database/db');
 
-const app  = express();
+const app = express();
+
+// Port : Render injecte PORT ; en local on utilise 4000 si .env ne définit rien.
 const PORT = process.env.PORT || 4000;
 
-// ═══════════════════════════════════════════
-// MIDDLEWARES GLOBAUX
-// ═══════════════════════════════════════════
+// Hôte d'écoute : 0.0.0.0 = toutes les interfaces réseau (nécessaire sur Render/Docker).
+// 'localhost' ou 127.0.0.1 seul refuserait les connexions externes au conteneur.
+const HOST = process.env.HOST || '0.0.0.0';
 
-// Parse le corps des requêtes en JSON
-// Sans ça : req.body = undefined
+// ---------------------------------------------------------------------------
+// Middlewares globaux (s'appliquent à toutes les routes définies après)
+// ---------------------------------------------------------------------------
+
+// Parse le corps des requêtes Content-Type: application/json → req.body objet JavaScript.
 app.use(express.json());
 
-// Autorise les requêtes depuis d'autres origines (ex: frontend sur port 8080)
+// CORS : autorise le navigateur à appeler cette API depuis un autre domaine (ex. frontend Vercel).
 app.use(cors());
 
-// Logger simple pour voir les requêtes entrantes dans le terminal
+// Journalisation minimaliste : méthode HTTP + chemin + heure (utile en dev et sur Render Logs).
 app.use((req, res, next) => {
   const timestamp = new Date().toLocaleTimeString('fr-FR');
   console.log(`[${timestamp}] ${req.method} ${req.url}`);
-  next();
+  next(); // Passe au middleware ou à la route suivante.
 });
 
-// ═══════════════════════════════════════════
-// DOCUMENTATION SWAGGER
-// ═══════════════════════════════════════════
+// ---------------------------------------------------------------------------
+// Documentation Swagger — interface web sous /api-docs
+// ---------------------------------------------------------------------------
 
-// Interface Swagger accessible sur http://localhost:4000/api-docs
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   customSiteTitle: 'API Blog INF222',
+  // Masque la barre verte Swagger par défaut pour un rendu plus sobre.
   customCss: '.swagger-ui .topbar { display: none }'
 }));
 
-// ═══════════════════════════════════════════
-// ROUTES DE L'API
-// ═══════════════════════════════════════════
+// ---------------------------------------------------------------------------
+// Routes métier : toutes les URLs /api/articles/* sont déléguées au router Express.
+// ---------------------------------------------------------------------------
 
-// Toutes les routes articles commencent par /api/articles
 app.use('/api/articles', articleRoutes);
 
-// Route racine — Message de bienvenue
+// Route racine GET / — santé du service + rappel des endpoints (pratique pour un devoir / démo).
 app.get('/', (req, res) => {
   res.json({
     message: ' API Blog INF222 — Serveur opérationnel !',
@@ -61,18 +81,18 @@ app.get('/', (req, res) => {
     endpoints: {
       documentation: 'GET /api-docs',
       articles: 'GET /api/articles',
-      creer:    'POST /api/articles',
-      lire:     'GET /api/articles/:id',
+      creer: 'POST /api/articles',
+      lire: 'GET /api/articles/:id',
       modifier: 'PUT /api/articles/:id',
-      supprimer:'DELETE /api/articles/:id',
-      recherche:'GET /api/articles/search?query=texte'
+      supprimer: 'DELETE /api/articles/:id',
+      recherche: 'GET /api/articles/search?query=texte'
     }
   });
 });
 
-// ═══════════════════════════════════════════
-// GESTION DES ROUTES INEXISTANTES (404)
-// ═══════════════════════════════════════════
+// ---------------------------------------------------------------------------
+// Filet de sécurité : aucune route ne correspond → 404 JSON (pas de page HTML par défaut).
+// ---------------------------------------------------------------------------
 
 app.use((req, res) => {
   res.status(404).json({
@@ -81,16 +101,20 @@ app.use((req, res) => {
   });
 });
 
-// ═══════════════════════════════════════════
-// DÉMARRAGE DU SERVEUR
-// ═══════════════════════════════════════════
+// ---------------------------------------------------------------------------
+// Démarrage du serveur HTTP
+// ---------------------------------------------------------------------------
 
-app.listen(PORT, () => {
+app.listen(PORT, HOST, () => {
+  // HOST peut être 0.0.0.0 (Render/Docker) : valide pour l'écoute, mais les navigateurs
+  // n'ouvrent pas http://0.0.0.0 (ERR_ADDRESS_INVALID). En local, utiliser localhost.
+  const localUrl = `http://localhost:${PORT}`;
   console.log('\n═══════════════════════════════════════');
-  console.log(` Serveur démarré sur http://localhost:${PORT}`);
-  console.log(` Swagger UI   : http://localhost:${PORT}/api-docs`);
-  console.log(` API Articles : http://localhost:${PORT}/api/articles`);
+  console.log(` Écoute sur ${HOST}:${PORT} (toutes interfaces — requis sur Render)`);
+  console.log(` Swagger UI   : ${localUrl}/api-docs`);
+  console.log(` API Articles : ${localUrl}/api/articles`);
   console.log('═══════════════════════════════════════\n');
 });
 
+// Export pour d'éventuels tests d'intégration (supertest) sans lancer le listen deux fois.
 module.exports = app;

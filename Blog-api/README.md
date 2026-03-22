@@ -93,3 +93,21 @@ curl "http://localhost:4000/api/articles/search?query=test"
 
 - Le fichier SQLite local est `blog.db`.
 - Si le port 4000 est deja utilise, arreter le processus occupant ce port puis relancer l'API.
+
+## Deploiement sur Render
+
+1. **Depot Git** : pousse le code sur GitHub/GitLab/Bitbucket.
+
+2. **Blueprint** : a la racine du depot, le fichier `render.yaml` declare un service web Node avec `rootDir: Blog-api`. Sur Render : **New** > **Blueprint** > connecter le depot ; Render lit `render.yaml` et cree le service.
+
+3. **Deploiement manuel (sans Blueprint)** : **New** > **Web Service** > meme depot, reglages :
+   - **Root Directory** : `Blog-api`
+   - **Build Command** : `npm install`
+   - **Start Command** : `npm start`
+   - **Plan** : Free (cold start possible apres inactivite)
+
+4. **Variables** : Render fournit automatiquement `PORT` et `RENDER_EXTERNAL_URL`. Le code utilise `PORT` pour ecouter et `RENDER_EXTERNAL_URL` pour afficher la bonne URL dans Swagger. Optionnel : definir `PUBLIC_URL` si tu veux forcer une URL.
+
+5. **SQLite en production** : le disque Render est **ephemere** — les donnees peuvent etre perdues au redemarrage ou au redeploiement. Pour un TP / demo c'est acceptable ; pour une vraie prod il faudrait une base gere (ex. PostgreSQL sur Render).
+
+6. **Fichier d'exemple** : voir `.env.example` pour le developpement local (copier vers `.env` si besoin).

@@ -1,12 +1,21 @@
-// routes/articleRoutes.js
+/**
+ * =============================================================================
+ * routes/articleRoutes.js — Router Express pour /api/articles
+ * =============================================================================
+ * Ce fichier ne contient pas la logique métier : il associe méthode HTTP + chemin
+ * à des fonctions du contrôleur et au middleware de validation.
+ * Les blocs @swagger sont lus par swagger-jsdoc pour générer la documentation OpenAPI.
+ * =============================================================================
+ */
 
 const express = require('express');
+// Router isolé : monté dans server.js avec app.use('/api/articles', articleRoutes)
 const router = express.Router();
 const articleController = require('../controllers/articleController');
 const validateArticle = require('../middleware/validateArticle');
 
-// ─── IMPORTANT : La route /search DOIT être avant /:id ───
-// Sinon Express interprète "search" comme un ID !
+// ─── IMPORTANT : la route /search DOIT être déclarée AVANT /:id ───
+// Sinon Express capture le mot "search" comme valeur du paramètre :id (bug classique).
 
 /**
  * @swagger
@@ -101,6 +110,7 @@ router.get('/', articleController.obtenirArticles);
  *       500:
  *         description: Erreur serveur
  */
+// validateArticle s'exécute avant creerArticle : si 400, le contrôleur n'est pas appelé.
 router.post('/', validateArticle, articleController.creerArticle);
 
 /**
