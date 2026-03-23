@@ -69,6 +69,29 @@ Cela evite les fautes de frappe sur les URLs et montre les schemas attendus (cha
 
 ---
 
+## Frontend HTML (consommation de l'API)
+
+Le frontend de demonstration se trouve dans **`Frontend/index.html`** (a la racine du depot).  
+Il consomme cette API et couvre les operations principales : chargement, recherche, filtres, creation, modification, suppression.
+
+### Ce qui a ete securise pour local + Render
+
+- Detection automatique de la base API selon le contexte (local ou domaine Render).
+- Fallback automatique si la base detectee ne repond pas (test de l'autre cible).
+- Overrides manuels via URL pour les tests :
+  - `?api=local`
+  - `?api=render`
+  - `?apiBase=https://...`
+
+### Instructions rapides
+
+1. Lancer l'API (`npm start`) dans ce dossier.
+2. Ouvrir `Frontend/index.html`.
+3. Verifier dans la barre de statut que l'API est **connectee**.
+4. Si besoin, relancer avec un parametre d'URL pour forcer la cible.
+
+---
+
 ## Variables d'environnement (local)
 
 Le fichier **`.env.example`** decrit les variables possibles. En local uniquement :

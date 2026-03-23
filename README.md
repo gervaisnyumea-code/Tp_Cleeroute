@@ -47,6 +47,40 @@ Les exemples complets (POST, recherche, remplacement du port avec Docker) sont d
 
 ---
 
+## Frontend de demonstration (`Frontend/index.html`)
+
+J'ai ajoute une interface complete dans **`Frontend/index.html`** qui consomme l'API REST.  
+Elle est compatible avec le travail **en local** et avec un backend **deploye sur Render**.
+
+### Utilisation en local
+
+1. Demarrer le backend :
+   ```bash
+   cd Blog-api
+   npm install
+   npm start
+   ```
+2. Ouvrir `Frontend/index.html` dans le navigateur (double-clic) **ou** servir le dossier via un serveur statique.
+3. Le frontend detecte automatiquement le mode local et tente `http://localhost:4000`.
+
+### Utilisation avec Render
+
+- Si la page est servie depuis un domaine Render, le frontend cible automatiquement `https://api-blog-ruhu.onrender.com`.
+- Si la base detectee ne repond pas, une **bascule automatique** teste l'autre base (local <-> Render) et une notification l'indique.
+
+### Forcer la base API (utile pour les tests)
+
+- `?api=local`  -> force `http://localhost:4000`
+- `?api=render` -> force `https://api-blog-ruhu.onrender.com`
+- `?apiBase=https://mon-api.exemple.com` -> force une URL personnalisee
+
+Exemples :
+
+- `file:///.../Frontend/index.html?api=render`
+- `http://localhost:3000/index.html?apiBase=https://api-blog-ruhu.onrender.com`
+
+---
+
 ## Docker (optionnel)
 
 J'ai documente Docker pour montrer comment l'API peut tourner dans un **conteneur** (meme environnement partout, dependances figees, compilation de `better-sqlite3` prise en charge dans l'image).

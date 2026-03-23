@@ -1,0 +1,2655 @@
+<!DOCTYPE html>
+<!--
+  ╔══════════════════════════════════════════════════════════════════════════════╗
+  ║  BLOG API INF222 — Interface Web Frontend                                  ║
+  ║  Auteur  : NYUMEA PEHA DARYL GERVAIS (24H2571)                             ║
+  ║  Cours   : INF222 EC1 — Développement Backend                              ║
+  ║  Dépôt   : https://github.com/gervaisnyumea-code/Tp_Cleeroute.git          ║
+  ║  API     : https://api-blog-ruhu.onrender.com                              ║
+  ╚══════════════════════════════════════════════════════════════════════════════╝
+-->
+
+<html lang="fr">
+
+<head>
+  <!-- ─── MÉTA-DONNÉES ─────────────────────────────────────────────────────── -->
+  <meta charset="UTF-8" /> <!-- Encodage universel UTF-8 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <!-- Responsive mobile -->
+  <meta name="description" content="Interface Frontend — Blog API INF222 (NYUMEA PEHA DARYL)" />
+  <title>Blog INF222 — NYUMEA PEHA DARYL GERVAIS</title> <!-- Titre de l'onglet navigateur -->
+
+  <!-- Icône du site (favicon) -->
+  <!-- Le fichier est placé dans Frontend/TPINF222.png, donc chemin relatif direct -->
+  <link rel="icon" type="image/png" href="./TPINF222.png" />
+  <!-- Fallback pour certains navigateurs et raccourcis -->
+  <link rel="shortcut icon" type="image/png" href="./TPINF222.png" />
+  <link rel="apple-touch-icon" href="./TPINF222.png" />
+
+  <!-- ─── POLICES GOOGLE FONTS ──────────────────────────────────────────────── -->
+  <!--
+    Deux polices choisies intentionnellement :
+    - "Playfair Display" : serif élégant pour les titres → donne un ton éditorial
+    - "JetBrains Mono"   : monospace pour les codes HTTP → lisibilité technique
+    - "Nunito"           : sans-serif arrondi pour le corps → lisibilité douce
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Nunito:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
+    rel="stylesheet" />
+
+  <!-- ══════════════════════════════════════════════════════════════════════════
+       STYLES CSS — Architecture "éditorial sombre / magazine technique"
+       Palette : fond ardoise foncé + ivoire + accents ambre
+       ══════════════════════════════════════════════════════════════════════════ -->
+  <style>
+    /* ── VARIABLES CSS GLOBALES ─────────────────────────────────────────────── */
+    :root {
+      /* Couleurs principales */
+      --bg-base: #0d0f14;
+      /* fond ultra-sombre (ardoise nuit) */
+      --bg-surface: #161a24;
+      /* fond des cartes / panneaux */
+      --bg-raised: #1e2333;
+      /* fond surlevé (champs, hover) */
+      --bg-overlay: #252b3b;
+      /* fond des modales / dropdowns */
+
+      /* Couleurs texte */
+      --text-primary: #e8e4d9;
+      /* ivoire chaud — texte principal */
+      --text-muted: #7a8099;
+      /* gris bleuté — texte secondaire */
+      --text-dim: #454d66;
+      /* gris foncé — texte inactif */
+
+      /* Accents */
+      --accent-amber: #c9a84c;
+      /* ambre doré — couleur signature */
+      --accent-teal: #3dbfb8;
+      /* turquoise — actions secondaires */
+      --accent-rose: #d95b5b;
+      /* rouge corail — suppressions / erreurs */
+      --accent-sage: #6ab187;
+      /* vert sauge — succès */
+
+      /* Méthodes HTTP (code couleur standard) */
+      --http-get: #6ab187;
+      /* GET = vert */
+      --http-post: #5b9bd5;
+      /* POST = bleu */
+      --http-put: #e0973a;
+      /* PUT = orange */
+      --http-delete: #d95b5b;
+      /* DELETE = rouge */
+
+      /* Typographie */
+      --font-display: 'Playfair Display', Georgia, serif;
+      /* titres */
+      --font-body: 'Nunito', sans-serif;
+      /* corps */
+      --font-code: 'JetBrains Mono', monospace;
+      /* code / badges */
+
+      /* Espacements */
+      --radius-sm: 6px;
+      --radius-md: 12px;
+      --radius-lg: 20px;
+
+      /* Ombres */
+      --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+      --shadow-modal: 0 12px 60px rgba(0, 0, 0, 0.7);
+
+      /* Transitions */
+      --transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ── RESET ET BASE ───────────────────────────────────────────────────────── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      /* modèle de boîte uniforme */
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      /* défilement doux pour les ancres */
+    }
+
+    body {
+      background-color: var(--bg-base);
+      /* fond sombre global */
+      color: var(--text-primary);
+      /* couleur texte par défaut */
+      font-family: var(--font-body);
+      /* police de base */
+      font-size: 15px;
+      line-height: 1.7;
+      min-height: 100vh;
+    }
+
+    /* ── BARRE DE NAVIGATION FIXE ────────────────────────────────────────────── */
+    .navbar {
+      position: fixed;
+      /* collée en haut de l'écran */
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      /* au-dessus de tout le contenu */
+      background: rgba(13, 15, 20, 0.95);
+      /* semi-transparent */
+      backdrop-filter: blur(12px);
+      /* flou de verre (glassmorphism) */
+      border-bottom: 1px solid rgba(201, 168, 76, 0.2);
+      /* filet ambre discret */
+      padding: 0 32px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    /* Logo dans la navbar */
+    .navbar-logo {
+      font-family: var(--font-display);
+      /* police éditorial */
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--accent-amber);
+      /* couleur signature */
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    /* Span discret dans le logo */
+    .navbar-logo span {
+      font-family: var(--font-code);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-left: 8px;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+    }
+
+    /* Groupe de boutons dans la navbar */
+    .navbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Indicateur d'état de l'API (point vert / rouge) */
+    .api-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-code);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      padding: 6px 12px;
+      background: var(--bg-raised);
+      border-radius: var(--radius-sm);
+    }
+
+    /* Le petit point de statut */
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      /* cercle parfait */
+      background-color: var(--text-dim);
+      /* gris par défaut (inconnu) */
+      transition: var(--transition);
+    }
+
+    /* Classes dynamiques ajoutées par JS pour l'état de l'API */
+    .status-dot.online {
+      background-color: var(--accent-sage);
+    }
+
+    /* vert = en ligne */
+    .status-dot.offline {
+      background-color: var(--accent-rose);
+    }
+
+    /* rouge = hors ligne */
+
+    /* ── MISE EN PAGE PRINCIPALE ─────────────────────────────────────────────── */
+    .main-container {
+      max-width: 1280px;
+      /* largeur maximale du contenu */
+      margin: 0 auto;
+      /* centré horizontalement */
+      padding: 88px 24px 48px;
+      /* 88px haut = compense la navbar fixe */
+    }
+
+    /* ── EN-TÊTE HERO ────────────────────────────────────────────────────────── */
+    .hero {
+      text-align: center;
+      padding: 56px 0 40px;
+      position: relative;
+      /* pour le décor de fond */
+      overflow: hidden;
+    }
+
+    /* Cercle décoratif flou derrière le titre (effet ambiance) */
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 400px;
+      background: radial-gradient(ellipse at center,
+          rgba(201, 168, 76, 0.06) 0%,
+          transparent 70%);
+      pointer-events: none;
+      /* n'intercepte pas les clics */
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
+      /* taille fluide responsive */
+      font-weight: 900;
+      color: var(--text-primary);
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+
+    /* Mot accentué en ambre dans le titre */
+    .hero-title em {
+      font-style: italic;
+      color: var(--accent-amber);
+    }
+
+    .hero-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      max-width: 500px;
+      margin: 0 auto 32px;
+    }
+
+    /* ── BARRE DE CONTRÔLES (recherche + bouton créer) ───────────────────────── */
+    .controls-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      /* passe en multi-ligne sur petit écran */
+      margin-bottom: 32px;
+      padding: 16px 20px;
+      background: var(--bg-surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* Groupe de recherche (icône + champ) */
+    .search-group {
+      flex: 1;
+      /* prend tout l'espace disponible */
+      min-width: 220px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-raised);
+      border-radius: var(--radius-md);
+      padding: 0 16px;
+      border: 1px solid transparent;
+      transition: var(--transition);
+    }
+
+    /* Surbrillance quand le champ de recherche est actif */
+    .search-group:focus-within {
+      border-color: var(--accent-amber);
+    }
+
+    /* Icône loupe (SVG inline) */
+    .search-icon {
+      flex-shrink: 0;
+      /* ne rétrécit pas */
+      color: var(--text-muted);
+    }
+
+    /* SVG de recherche explicite et lisible dans le thème */
+    .search-icon svg {
+      display: block;
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+    }
+
+    /* Champ de saisie de la recherche */
+    .search-input {
+      flex: 1;
+      background: transparent;
+      /* pas de fond propre, hérité du parent */
+      border: none;
+      outline: none;
+      /* supprime le contour navigateur */
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      padding: 12px 0;
+    }
+
+    .search-input::placeholder {
+      color: var(--text-dim);
+      /* placeholder discret */
+    }
+
+    /* Groupe des filtres (catégorie + auteur) */
+    .filter-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* Champ de filtre (select ou input compact) */
+    .filter-input {
+      background: var(--bg-raised);
+      border: 1px solid transparent;
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: var(--transition);
+      outline: none;
+    }
+
+    .filter-input:focus,
+    .filter-input:hover {
+      border-color: rgba(201, 168, 76, 0.3);
+      /* bordure ambre discrète */
+    }
+
+    /* ── BOUTONS ─────────────────────────────────────────────────────────────── */
+    /* Bouton primaire (ambre) */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: var(--transition);
+      white-space: nowrap;
+      outline: none;
+    }
+
+    /* Variante principale (ambre) */
+    .btn-primary {
+      background: var(--accent-amber);
+      color: #0d0f14;
+      /* texte sombre sur fond ambre */
+    }
+
+    .btn-primary:hover {
+      background: #e0be6a;
+      /* ambre plus clair au survol */
+      transform: translateY(-1px);
+      /* légère remontée */
+    }
+
+    /* Variante secondaire (transparent avec bordure) */
+    .btn-secondary {
+      background: transparent;
+      color: var(--accent-amber);
+      border: 1px solid rgba(201, 168, 76, 0.4);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(201, 168, 76, 0.08);
+    }
+
+    /* Variante danger (rouge) */
+    .btn-danger {
+      background: rgba(217, 91, 91, 0.12);
+      color: var(--accent-rose);
+      border: 1px solid rgba(217, 91, 91, 0.3);
+    }
+
+    .btn-danger:hover {
+      background: rgba(217, 91, 91, 0.22);
+    }
+
+    /* Variante petite taille */
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 0.8rem;
+    }
+
+    /* Bouton désactivé */
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* ── STATISTIQUES RAPIDES ────────────────────────────────────────────────── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      /* grille flexible */
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    /* Carte de stat individuelle */
+    .stat-card {
+      background: var(--bg-surface);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: var(--transition);
+    }
+
+    .stat-card:hover {
+      border-color: rgba(201, 168, 76, 0.2);
+      /* bordure ambre au survol */
+    }
+
+    /* Icône de stat (fond coloré) */
+    .stat-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    /* Chaque stat utilise un SVG inline (pas d'emoji, rendu plus pro) */
+    .stat-icon svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.9;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* Chiffre principal de la stat */
+    .stat-number {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--accent-amber);
+      line-height: 1;
+    }
+
+    /* Libellé de la stat */
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* ── GRILLE DES ARTICLES ─────────────────────────────────────────────────── */
+    .articles-grid {
+      display: grid;
+      /* 3 colonnes sur grand écran, 2 sur moyen, 1 sur petit */
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    /* ── CARTE ARTICLE ───────────────────────────────────────────────────────── */
+    .article-card {
+      background: var(--bg-surface);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: var(--transition);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      /* contient les effets de fond */
+    }
+
+    /* Filet coloré en haut de chaque carte (couleur par catégorie) */
+    .article-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent-amber), transparent);
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .article-card:hover {
+      border-color: rgba(201, 168, 76, 0.25);
+      transform: translateY(-3px);
+      /* flottement au survol */
+      box-shadow: var(--shadow-card);
+    }
+
+    .article-card:hover::before {
+      opacity: 1;
+      /* révèle le filet coloré */
+    }
+
+    /* En-tête de la carte : ID + date */
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Badge ID de l'article */
+    .article-id {
+      font-family: var(--font-code);
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      background: var(--bg-raised);
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    /* Date de l'article */
+    .article-date {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Titre de l'article */
+    .article-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.3;
+      /* Tronque à 2 lignes avec "..." */
+      display: -webkit-box;
+      line-clamp: 2;
+      /* [MODIF COMMENTEE] propriété standard ajoutée pour compatibilité */
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Extrait du contenu */
+    .article-excerpt {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      /* Tronque à 3 lignes avec "..." */
+      display: -webkit-box;
+      line-clamp: 3;
+      /* [MODIF COMMENTEE] propriété standard ajoutée pour compatibilité */
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      flex: 1;
+      /* pousse les métadonnées vers le bas */
+    }
+
+    /* Pied de carte : auteur + catégorie */
+    .card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* Info auteur */
+    .meta-author {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Avatar initiale de l'auteur */
+    .author-avatar {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-amber), var(--accent-teal));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: #0d0f14;
+      text-transform: uppercase;
+    }
+
+    /* Badge catégorie */
+    .meta-category {
+      font-family: var(--font-code);
+      font-size: 0.7rem;
+      background: rgba(201, 168, 76, 0.1);
+      color: var(--accent-amber);
+      border: 1px solid rgba(201, 168, 76, 0.2);
+      padding: 2px 8px;
+      border-radius: 4px;
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Boutons d'action sur la carte (éditer / supprimer) */
+    .card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    /* ── ÉTAT VIDE (aucun article) ───────────────────────────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 80px 24px;
+      color: var(--text-muted);
+    }
+
+    .empty-state-icon {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 16px;
+      opacity: 0.4;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .empty-state-icon svg {
+      width: 58px;
+      height: 58px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .empty-state h3 {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+
+    /* ── LOADING SPINNER ─────────────────────────────────────────────────────── */
+    .loading-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 20px;
+    }
+
+    /* Carte squelette animée (skeleton loading) */
+    .skeleton-card {
+      background: var(--bg-surface);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      height: 220px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Animation de brillance qui défile de gauche à droite */
+    .skeleton-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg,
+          transparent 25%,
+          rgba(255, 255, 255, 0.04) 50%,
+          transparent 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.8s infinite;
+      /* animation définie ci-dessous */
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: -200% 0;
+      }
+
+      100% {
+        background-position: 200% 0;
+      }
+    }
+
+    /* ── MODAL (fenêtre flottante) ───────────────────────────────────────────── */
+    /* Fond semi-transparent derrière la modale */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      /* couvre toute la fenêtre */
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      /* flou du contenu derrière */
+      z-index: 2000;
+      display: none;
+      /* caché par défaut */
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      animation: fadeIn 0.2s ease;
+    }
+
+    /* Classe active pour afficher la modale */
+    .modal-backdrop.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* Contenu de la modale */
+    .modal {
+      background: var(--bg-overlay);
+      border-radius: var(--radius-lg);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: var(--shadow-modal);
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      /* limite la hauteur à 90% de la fenêtre */
+      overflow-y: auto;
+      /* défilement interne si contenu long */
+      animation: slideUp 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes slideUp {
+      from {
+        transform: translateY(20px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    /* En-tête de la modale */
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 28px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    /* Bouton de fermeture (×) */
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--bg-raised);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      transition: var(--transition);
+    }
+
+    .modal-close svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .modal-close:hover {
+      background: rgba(217, 91, 91, 0.2);
+      color: var(--accent-rose);
+    }
+
+    /* Corps de la modale */
+    .modal-body {
+      padding: 24px 28px;
+    }
+
+    /* Pied de la modale (boutons d'action) */
+    .modal-footer {
+      padding: 16px 28px 24px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    /* ── FORMULAIRE ──────────────────────────────────────────────────────────── */
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    /* Étiquette de champ */
+    .form-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 7px;
+    }
+
+    /* Marqueur obligatoire rouge */
+    .form-label .required {
+      color: var(--accent-rose);
+      margin-left: 3px;
+    }
+
+    /* Champ de saisie texte */
+    .form-input,
+    .form-textarea,
+    .form-select {
+      width: 100%;
+      background: var(--bg-raised);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      padding: 11px 14px;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .form-input:focus,
+    .form-textarea:focus,
+    .form-select:focus {
+      border-color: var(--accent-amber);
+      /* bordure ambre au focus */
+      box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.12);
+      /* halo discret */
+    }
+
+    /* Zone de texte multi-lignes */
+    .form-textarea {
+      resize: vertical;
+      /* redimensionnable verticalement */
+      min-height: 120px;
+    }
+
+    /* Message d'erreur sous un champ */
+    .form-error {
+      font-size: 0.78rem;
+      color: var(--accent-rose);
+      margin-top: 5px;
+      display: none;
+      /* caché par défaut, affiché par JS */
+    }
+
+    .form-error.visible {
+      display: block;
+    }
+
+    /* Texte d'aide sous un champ */
+    .form-hint {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-top: 5px;
+    }
+
+    /* Grille 2 colonnes pour les champs courts */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    /* ── PANNEAU DE DÉTAIL D'UN ARTICLE ──────────────────────────────────────── */
+    .detail-header {
+      margin-bottom: 20px;
+    }
+
+    .detail-title {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 900;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+
+    .detail-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    /* Badge méthode HTTP dans le détail */
+    .http-badge {
+      font-family: var(--font-code);
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .detail-content {
+      font-size: 0.93rem;
+      line-height: 1.8;
+      color: var(--text-muted);
+      white-space: pre-wrap;
+      /* préserve les sauts de ligne */
+      padding: 16px;
+      background: var(--bg-raised);
+      border-radius: var(--radius-md);
+      border-left: 3px solid var(--accent-amber);
+      /* accent latéral */
+      margin-bottom: 16px;
+    }
+
+    /* Tags de l'article */
+    .tags-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag-chip {
+      font-family: var(--font-code);
+      font-size: 0.72rem;
+      background: rgba(61, 191, 184, 0.1);
+      color: var(--accent-teal);
+      border: 1px solid rgba(61, 191, 184, 0.2);
+      padding: 3px 10px;
+      border-radius: 20px;
+      /* pilule */
+    }
+
+    /* ── TOAST NOTIFICATION ──────────────────────────────────────────────────── */
+    /* Conteneur fixe en bas à droite */
+    .toast-container {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 3000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+      /* ne bloque pas les clics sous lui */
+    }
+
+    /* Chaque toast individuel */
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      font-weight: 600;
+      pointer-events: all;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      animation: toastIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      max-width: 320px;
+    }
+
+    /* Icône toast dédiée (SVG inline) */
+    .toast-icon {
+      display: inline-flex;
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .toast-icon svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    @keyframes toastIn {
+      from {
+        transform: translateX(120%);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    /* Variantes de toast par type */
+    .toast.success {
+      background: rgba(106, 177, 135, 0.15);
+      border: 1px solid rgba(106, 177, 135, 0.3);
+      color: var(--accent-sage);
+    }
+
+    .toast.error {
+      background: rgba(217, 91, 91, 0.15);
+      border: 1px solid rgba(217, 91, 91, 0.3);
+      color: var(--accent-rose);
+    }
+
+    .toast.info {
+      background: rgba(91, 155, 213, 0.15);
+      border: 1px solid rgba(91, 155, 213, 0.3);
+      color: #5b9bd5;
+    }
+
+    /* ── FOOTER ──────────────────────────────────────────────────────────────── */
+    .footer {
+      text-align: center;
+      padding: 32px;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--text-dim);
+      font-size: 0.78rem;
+    }
+
+    .footer a {
+      color: var(--accent-amber);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .footer a:hover {
+      color: #e0be6a;
+    }
+
+    /* ── BARRE DE PAGINATION ─────────────────────────────────────────────────── */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 32px;
+    }
+
+    .page-info {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-family: var(--font-code);
+      padding: 0 12px;
+    }
+
+    /* ── RESPONSIVE ──────────────────────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      .navbar {
+        padding: 0 16px;
+      }
+
+      /* moins de marge sur mobile */
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      /* 1 colonne sur mobile */
+      .controls-bar {
+        flex-direction: column;
+      }
+
+      .search-group {
+        min-width: 0;
+      }
+
+      .hero-title {
+        font-size: 2rem;
+      }
+
+      .modal {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════
+       BARRE DE NAVIGATION
+       ═══════════════════════════════════════════════════════════════════════════ -->
+  <nav class="navbar" role="navigation" aria-label="Navigation principale">
+
+    <!-- Logo avec nom de l'auteur -->
+    <div class="navbar-logo">
+      Blog<em style="color:var(--accent-amber);">.</em>INF222
+      <span>NYUMEA PEHA DARYL GERVAIS — 24H2571</span>
+    </div>
+
+    <!-- Actions : statut API + bouton créer -->
+    <div class="navbar-actions">
+
+      <!-- Indicateur de connexion à l'API -->
+      <div class="api-status" id="api-status-badge" title="État de la connexion à l'API">
+        <div class="status-dot" id="status-dot"></div> <!-- point coloré -->
+        <span id="status-text">Connexion...</span> <!-- texte dynamique -->
+      </div>
+
+      <!-- Bouton d'ouverture du formulaire de création -->
+      <button class="btn btn-primary" id="btn-new-article" aria-label="Créer un article">
+        <!-- Icône plus (SVG inline pour ne pas dépendre d'une lib externe) -->
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
+          aria-hidden="true">
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+        Nouvel article
+      </button>
+
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════
+       CONTENEUR PRINCIPAL
+       ═══════════════════════════════════════════════════════════════════════════ -->
+  <main class="main-container">
+
+    <!-- ─── SECTION HERO ────────────────────────────────────────────────────── -->
+    <section class="hero" aria-label="En-tête">
+      <h1 class="hero-title">
+        Gestion des <em>Articles</em>
+      </h1>
+      <p class="hero-subtitle">
+        Interface de démonstration · API REST Node.js / Express / SQLite
+      </p>
+    </section>
+
+    <!-- ─── STATISTIQUES RAPIDES ─────────────────────────────────────────────── -->
+    <section class="stats-row" aria-label="Statistiques">
+
+      <!-- Stat : nombre total d'articles -->
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(201,168,76,0.1);color:var(--accent-amber);">
+          <!-- SVG #1 : document (articles) -->
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8 3h6l4 4v14H8z"></path>
+            <path d="M14 3v4h4"></path>
+            <path d="M10 12h6M10 16h6"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-number" id="stat-total">—</div>
+          <div class="stat-label">Articles total</div>
+        </div>
+      </div>
+
+      <!-- Stat : nombre de catégories -->
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(61,191,184,0.1);color:var(--accent-teal);">
+          <!-- SVG #2 : tag (catégories) -->
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20 13l-7 7-9-9V4h7z"></path>
+            <circle cx="8.5" cy="8.5" r="1.2"></circle>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-number" id="stat-categories">—</div>
+          <div class="stat-label">Catégories</div>
+        </div>
+      </div>
+
+      <!-- Stat : nombre d'auteurs uniques -->
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(106,177,135,0.1);color:var(--accent-sage);">
+          <!-- SVG #3 : plume/stylo (auteurs) -->
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 20l4.5-1 9-9-3.5-3.5-9 9z"></path>
+            <path d="M13 6l3.5 3.5"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-number" id="stat-auteurs">—</div>
+          <div class="stat-label">Auteurs</div>
+        </div>
+      </div>
+
+      <!-- Stat : dernier article créé -->
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(91,155,213,0.1);color:#5b9bd5;">
+          <!-- SVG #4 : calendrier (dernier article) -->
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="4" y="5" width="16" height="15" rx="2"></rect>
+            <path d="M8 3v4M16 3v4M4 10h16"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="stat-number" id="stat-last" style="font-size:1rem">—</div>
+          <div class="stat-label">Dernier article</div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ─── BARRE DE CONTRÔLES ───────────────────────────────────────────────── -->
+    <section class="controls-bar" role="search" aria-label="Recherche et filtres">
+
+      <!-- Champ de recherche full-text -->
+      <div class="search-group" style="flex:1.5">
+        <!-- Icône loupe SVG -->
+        <span class="search-icon" aria-hidden="true">
+          <!-- SVG recherche volontairement visible et distinct -->
+          <svg viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="7.2"></circle>
+            <line x1="20" y1="20" x2="16.4" y2="16.4"></line>
+          </svg>
+        </span>
+        <input type="search" class="search-input" id="search-input" placeholder="Rechercher dans titre ou contenu..."
+          autocomplete="off" aria-label="Champ de recherche" />
+      </div>
+
+      <!-- Filtres rapides -->
+      <div class="filter-group">
+
+        <!-- Filtre par catégorie (texte libre) -->
+        <input type="text" class="filter-input" id="filter-categorie" placeholder="Catégorie..." style="width:140px"
+          aria-label="Filtrer par catégorie" />
+
+        <!-- Filtre par auteur (texte libre) -->
+        <input type="text" class="filter-input" id="filter-auteur" placeholder="Auteur..." style="width:130px"
+          aria-label="Filtrer par auteur" />
+
+        <!-- Bouton appliquer les filtres -->
+        <button class="btn btn-secondary" id="btn-apply-filters" aria-label="Appliquer les filtres">
+          Filtrer
+        </button>
+
+        <!-- Bouton réinitialiser -->
+        <button class="btn btn-secondary" id="btn-reset-filters" title="Effacer les filtres"
+          aria-label="Réinitialiser les filtres">
+          <!-- Reset textuel volontaire (lisible/accessibilité), sans icône emoji -->
+          Reset
+        </button>
+
+      </div>
+    </section>
+
+    <!-- ─── GRILLE DES ARTICLES ──────────────────────────────────────────────── -->
+    <!-- La grille est remplie dynamiquement par JS -->
+    <section aria-label="Liste des articles">
+      <div id="articles-container">
+        <!-- Squelettes de chargement affichés pendant le fetch initial -->
+        <div class="loading-grid" id="loading-grid">
+          <!-- 6 cartes squelettes générées par JS ci-dessous -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── PAGINATION SIMPLE ────────────────────────────────────────────────── -->
+    <nav class="pagination" id="pagination" aria-label="Pagination" style="display:none">
+      <button class="btn btn-secondary btn-sm" id="btn-prev" aria-label="Page précédente">← Précédent</button>
+      <span class="page-info" id="page-info">Page 1</span>
+      <button class="btn btn-secondary btn-sm" id="btn-next" aria-label="Page suivante">Suivant →</button>
+    </nav>
+
+  </main>
+
+  <!-- ─── FOOTER ──────────────────────────────────────────────────────────────── -->
+  <footer class="footer" role="contentinfo">
+    <p>
+      INF222 EC1 — TAF1 · Interface par <strong>NYUMEA PEHA DARYL GERVAIS</strong> (24H2571)
+      · <a href="https://api-blog-ruhu.onrender.com/api-docs" target="_blank" rel="noopener">Swagger UI</a>
+      · <a href="https://github.com/gervaisnyumea-code/Tp_Cleeroute.git" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </footer>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════
+       MODALES (fenêtres flottantes)
+       ═══════════════════════════════════════════════════════════════════════════ -->
+
+  <!-- ─── MODALE CRÉER / MODIFIER UN ARTICLE ───────────────────────────────── -->
+  <div class="modal-backdrop" id="modal-form" role="dialog" aria-modal="true" aria-labelledby="modal-form-title">
+    <div class="modal">
+
+      <!-- En-tête de la modale -->
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-form-title">Nouvel article</h2>
+        <button class="modal-close" id="btn-close-form" aria-label="Fermer la modale">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Corps : formulaire de saisie -->
+      <div class="modal-body">
+        <!-- Identifiant caché pour la modification (vide lors de la création) -->
+        <input type="hidden" id="form-article-id" />
+
+        <!-- Titre (obligatoire) -->
+        <div class="form-group">
+          <label class="form-label" for="form-titre">
+            Titre <span class="required">*</span>
+          </label>
+          <input type="text" class="form-input" id="form-titre" placeholder="Ex: Introduction à Node.js" maxlength="255"
+            aria-required="true" />
+          <div class="form-error" id="error-titre">Le titre est obligatoire (min. 3 caractères)</div>
+        </div>
+
+        <!-- Contenu (obligatoire) -->
+        <div class="form-group">
+          <label class="form-label" for="form-contenu">
+            Contenu <span class="required">*</span>
+          </label>
+          <textarea class="form-textarea" id="form-contenu"
+            placeholder="Rédigez votre article ici... (min. 10 caractères)" rows="6" aria-required="true"></textarea>
+          <div class="form-error" id="error-contenu">Le contenu est obligatoire (min. 10 caractères)</div>
+        </div>
+
+        <!-- Ligne auteur + date (2 colonnes) -->
+        <div class="form-row">
+
+          <!-- Auteur (obligatoire) -->
+          <div class="form-group">
+            <label class="form-label" for="form-auteur">
+              Auteur <span class="required">*</span>
+            </label>
+            <input type="text" class="form-input" id="form-auteur" placeholder="Votre nom" aria-required="true" />
+            <div class="form-error" id="error-auteur">L'auteur est obligatoire (min. 2 caractères)</div>
+          </div>
+
+          <!-- Date (optionnelle — défaut = aujourd'hui côté serveur) -->
+          <div class="form-group">
+            <label class="form-label" for="form-date">Date</label>
+            <input type="date" class="form-input" id="form-date" />
+            <div class="form-hint">Optionnelle — aujourd'hui par défaut</div>
+          </div>
+
+        </div>
+
+        <!-- Ligne catégorie + tags (2 colonnes) -->
+        <div class="form-row">
+
+          <!-- Catégorie (optionnelle) -->
+          <div class="form-group">
+            <label class="form-label" for="form-categorie">Catégorie</label>
+            <input type="text" class="form-input" id="form-categorie" placeholder="Ex: Tech, Backend, Data…" />
+          </div>
+
+          <!-- Tags (optionnels — séparés par virgule) -->
+          <div class="form-group">
+            <label class="form-label" for="form-tags">Tags</label>
+            <input type="text" class="form-input" id="form-tags" placeholder="node,api,sqlite" />
+            <div class="form-hint">Séparés par des virgules</div>
+          </div>
+
+        </div>
+      </div><!-- fin modal-body -->
+
+      <!-- Pied de la modale : annuler + soumettre -->
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-cancel-form">Annuler</button>
+        <button class="btn btn-primary" id="btn-submit-form">
+          <!-- Le texte change dynamiquement : "Créer" ou "Modifier" -->
+          <span id="submit-btn-text">Créer l'article</span>
+        </button>
+      </div>
+
+    </div><!-- fin .modal -->
+  </div><!-- fin .modal-backdrop #modal-form -->
+
+  <!-- ─── MODALE DÉTAIL D'UN ARTICLE ───────────────────────────────────────── -->
+  <div class="modal-backdrop" id="modal-detail" role="dialog" aria-modal="true" aria-labelledby="detail-title-heading">
+    <div class="modal" style="max-width:680px">
+
+      <div class="modal-header">
+        <h2 class="modal-title" id="detail-title-heading">Détail de l'article</h2>
+        <button class="modal-close" id="btn-close-detail" aria-label="Fermer">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Contenu injecté dynamiquement par JS -->
+      <div class="modal-body" id="detail-body">
+      </div>
+
+      <div class="modal-footer">
+        <!-- Bouton éditer (dans le détail) -->
+        <button class="btn btn-secondary" id="btn-detail-edit">
+          <!-- SVG édition -->
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            aria-hidden="true">
+            <path d="M4 20l4.5-1 9-9-3.5-3.5-9 9z"></path>
+            <path d="M13 6l3.5 3.5"></path>
+          </svg>
+          Modifier
+        </button>
+        <!-- Bouton supprimer (dans le détail) -->
+        <button class="btn btn-danger" id="btn-detail-delete">
+          <!-- SVG suppression -->
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            aria-hidden="true">
+            <path d="M4 7h16"></path>
+            <path d="M9 7V5h6v2"></path>
+            <rect x="6.5" y="7" width="11" height="13" rx="1.5"></rect>
+          </svg>
+          Supprimer
+        </button>
+        <button class="btn btn-secondary" id="btn-close-detail-2">Fermer</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─── MODALE CONFIRMATION SUPPRESSION ──────────────────────────────────── -->
+  <div class="modal-backdrop" id="modal-confirm" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title">
+    <div class="modal" style="max-width:420px">
+
+      <div class="modal-header">
+        <h2 class="modal-title" id="confirm-title" style="color:var(--accent-rose)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"
+            style="vertical-align:-2px;margin-right:6px" aria-hidden="true">
+            <path d="M12 3l9 17H3z"></path>
+            <path d="M12 9v5M12 17.2h.01"></path>
+          </svg>
+          Confirmer la suppression
+        </h2>
+        <button class="modal-close" id="btn-close-confirm" aria-label="Annuler">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18"></path>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p style="color:var(--text-muted);line-height:1.7">
+          Êtes-vous sûr de vouloir supprimer l'article
+          <strong id="confirm-article-title" style="color:var(--text-primary)">"..."</strong> ?
+          <br />
+          <small style="color:var(--text-dim)">Cette action est irréversible.</small>
+        </p>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-cancel-confirm">Annuler</button>
+        <button class="btn btn-danger" id="btn-confirm-delete">Supprimer définitivement</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─── CONTENEUR DES TOASTS ─────────────────────────────────────────────── -->
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════════
+       SCRIPT JAVASCRIPT — Logique complète de l'application
+       ═══════════════════════════════════════════════════════════════════════════ -->
+  <script>
+    /**
+     * ════════════════════════════════════════════════════════════════════════════
+     *  CONFIGURATION DE L'API (LOCAL + RENDER, AVEC BASCULE AUTO)
+     * ════════════════════════════════════════════════════════════════════════════
+     *  Objectif : garantir un frontend fonctionnel dans 3 cas fréquents :
+     *  1) page ouverte en local (localhost / 127.0.0.1)
+     *  2) page ouverte depuis Render
+     *  3) page ouverte en file:// (double-clic sur index.html)
+     *
+     *  Règles :
+     *  - Priorité à ?apiBase=https://... (override explicite)
+     *  - Puis ?api=local / ?api=render
+     *  - Sinon détection auto par hostname
+     *  - En cas d'échec, fallback automatique sur l'autre base
+     * ════════════════════════════════════════════════════════════════════════════
+     */
+    const API_CANDIDATES = {
+      local: 'http://localhost:4000',
+      render: 'https://api-blog-ruhu.onrender.com',
+    };
+
+    function resolveApiBase() {
+      const params = new URLSearchParams(window.location.search);
+      const forceApiBase = params.get('apiBase');
+      const forceApiEnv = params.get('api');
+
+      /* Override complet : ?apiBase=https://... */
+      if (forceApiBase && /^https?:\/\//i.test(forceApiBase)) {
+        return forceApiBase.replace(/\/+$/, '');
+      }
+
+      /* Override court : ?api=local ou ?api=render */
+      if (forceApiEnv === 'local') return API_CANDIDATES.local;
+      if (forceApiEnv === 'render') return API_CANDIDATES.render;
+
+      const host = window.location.hostname;
+      const isLocalHost = host === 'localhost' || host === '127.0.0.1';
+      const isLocalFile = window.location.protocol === 'file:';
+
+      if (isLocalHost || isLocalFile) return API_CANDIDATES.local;
+      return API_CANDIDATES.render;
+    }
+
+    /* Devient mutable pour permettre le fallback automatique */
+    let API_BASE = resolveApiBase();
+    let ARTICLES_URL = `${API_BASE}/api/articles`;
+
+    function setApiBase(nextBase) {
+      API_BASE = nextBase.replace(/\/+$/, '');
+      ARTICLES_URL = `${API_BASE}/api/articles`;
+      dom.statusText.title = `API active: ${API_BASE}`;
+    }
+
+    async function pingApi(baseUrl, timeoutMs = 2800) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const res = await fetch(`${baseUrl}/api/articles`, { signal: controller.signal });
+        return res.ok;
+      } catch {
+        return false;
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    }
+
+    async function ensureApiBaseAvailable() {
+      /* Test rapide de la base sélectionnée */
+      if (await pingApi(API_BASE)) return;
+
+      /* Fallback automatique vers l'autre environnement */
+      const fallback = API_BASE === API_CANDIDATES.local
+        ? API_CANDIDATES.render
+        : API_CANDIDATES.local;
+
+      if (await pingApi(fallback)) {
+        setApiBase(fallback);
+        showToast(`Bascule API automatique vers ${fallback}`, 'info', 4500);
+        return;
+      }
+
+      /* Les deux cibles ont échoué, on garde la base initiale */
+      showToast(
+        `API non joignable (local et Render). Base courante: ${API_BASE}`,
+        'error',
+        6500
+      );
+    }
+
+    /* ─── ÉTAT GLOBAL DE L'APPLICATION ─────────────────────────────────────────
+     *  On stocke ici les données en mémoire pour ne pas refaire des fetch inutiles.
+     */
+    const state = {
+      articles: [],      /* tableau de tous les articles chargés */
+      filteredArticles: [],     /* tableau après application des filtres */
+      currentPage: 1,       /* page actuelle pour la pagination */
+      itemsPerPage: 9,       /* nombre d'articles par page */
+      editingId: null,    /* ID de l'article en cours d'édition (null = création) */
+      deleteTargetId: null,    /* ID de l'article ciblé pour suppression */
+      deleteTargetTitle: '',    /* titre de l'article ciblé (pour la confirmation) */
+      searchQuery: '',      /* dernière requête de recherche */
+    };
+
+    /* ─── RÉFÉRENCES AUX ÉLÉMENTS DOM ──────────────────────────────────────────
+     *  On les récupère une seule fois au chargement pour éviter des appels
+     *  répétés à document.getElementById (optimisation mineure mais bonne pratique).
+     */
+    const dom = {
+      /* Barre de statut API */
+      statusDot: document.getElementById('status-dot'),
+      statusText: document.getElementById('status-text'),
+
+      /* Statistiques */
+      statTotal: document.getElementById('stat-total'),
+      statCategories: document.getElementById('stat-categories'),
+      statAuteurs: document.getElementById('stat-auteurs'),
+      statLast: document.getElementById('stat-last'),
+
+      /* Contrôles de recherche / filtre */
+      searchInput: document.getElementById('search-input'),
+      filterCategorie: document.getElementById('filter-categorie'),
+      filterAuteur: document.getElementById('filter-auteur'),
+      btnApplyFilters: document.getElementById('btn-apply-filters'),
+      btnResetFilters: document.getElementById('btn-reset-filters'),
+
+      /* Conteneur de la grille */
+      articlesContainer: document.getElementById('articles-container'),
+      loadingGrid: document.getElementById('loading-grid'),
+
+      /* Pagination */
+      pagination: document.getElementById('pagination'),
+      btnPrev: document.getElementById('btn-prev'),
+      btnNext: document.getElementById('btn-next'),
+      pageInfo: document.getElementById('page-info'),
+
+      /* Modale formulaire */
+      modalForm: document.getElementById('modal-form'),
+      modalFormTitle: document.getElementById('modal-form-title'),
+      submitBtnText: document.getElementById('submit-btn-text'),
+      btnNewArticle: document.getElementById('btn-new-article'),
+      btnCloseForm: document.getElementById('btn-close-form'),
+      btnCancelForm: document.getElementById('btn-cancel-form'),
+      btnSubmitForm: document.getElementById('btn-submit-form'),
+
+      /* Champs du formulaire */
+      formId: document.getElementById('form-article-id'),
+      formTitre: document.getElementById('form-titre'),
+      formContenu: document.getElementById('form-contenu'),
+      formAuteur: document.getElementById('form-auteur'),
+      formDate: document.getElementById('form-date'),
+      formCategorie: document.getElementById('form-categorie'),
+      formTags: document.getElementById('form-tags'),
+
+      /* Messages d'erreur du formulaire */
+      errorTitre: document.getElementById('error-titre'),
+      errorContenu: document.getElementById('error-contenu'),
+      errorAuteur: document.getElementById('error-auteur'),
+
+      /* Modale détail */
+      modalDetail: document.getElementById('modal-detail'),
+      detailBody: document.getElementById('detail-body'),
+      btnCloseDetail: document.getElementById('btn-close-detail'),
+      btnCloseDetail2: document.getElementById('btn-close-detail-2'),
+      btnDetailEdit: document.getElementById('btn-detail-edit'),
+      btnDetailDelete: document.getElementById('btn-detail-delete'),
+
+      /* Modale confirmation suppression */
+      modalConfirm: document.getElementById('modal-confirm'),
+      confirmTitle: document.getElementById('confirm-article-title'),
+      btnCloseConfirm: document.getElementById('btn-close-confirm'),
+      btnCancelConfirm: document.getElementById('btn-cancel-confirm'),
+      btnConfirmDelete: document.getElementById('btn-confirm-delete'),
+
+      /* Conteneur des toasts */
+      toastContainer: document.getElementById('toast-container'),
+    };
+
+    /* ════════════════════════════════════════════════════════════════════════════
+     *  UTILITAIRES
+     * ════════════════════════════════════════════════════════════════════════════ */
+
+    /**
+     * showToast — Affiche une notification temporaire (toast) en bas à droite.
+     * @param {string} message  - Texte à afficher
+     * @param {string} type     - 'success' | 'error' | 'info'
+     * @param {number} duration - Durée d'affichage en ms (défaut 3500)
+     */
+    function showToast(message, type = 'info', duration = 3500) {
+      /* Crée l'élément toast */
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;  /* applique le style selon le type */
+
+      /*  Des SVG explicites */
+      const icons = {
+        success: `
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20 7L10 17l-6-6"></path>
+        </svg>`,
+        error: `
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"></circle>
+          <path d="M9 9l6 6M15 9l-6 6"></path>
+        </svg>`,
+        info: `
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"></circle>
+          <path d="M12 10v6M12 7.2h.01"></path>
+        </svg>`,
+      };
+      toast.innerHTML = `
+      <span class="toast-icon">${icons[type] || icons.info}</span>
+      <span>${message}</span>
+    `;
+
+      /* Ajoute au conteneur */
+      dom.toastContainer.appendChild(toast);
+
+      /* Supprime automatiquement après la durée spécifiée */
+      setTimeout(() => {
+        /* Animation de sortie : glisse vers la droite */
+        toast.style.transition = 'all 0.3s ease';
+        toast.style.transform = 'translateX(120%)';
+        toast.style.opacity = '0';
+        /* Supprime du DOM après la fin de l'animation */
+        setTimeout(() => toast.remove(), 320);
+      }, duration);
+    }
+
+    /**
+     * formatDate — Formate une chaîne de date ISO en format français lisible.
+     * @param {string} dateStr - ex: "2026-03-22" ou "2026-03-22T10:30:00"
+     * @returns {string} - ex: "22 mars 2026"
+     */
+    function formatDate(dateStr) {
+      if (!dateStr) return '—';
+      try {
+        /* On prend seulement la partie date (avant le T) si c'est un datetime */
+        const d = new Date(dateStr.split('T')[0] + 'T12:00:00');
+        return d.toLocaleDateString('fr-FR', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        });
+      } catch {
+        return dateStr;   /* retourne tel quel en cas d'erreur de parsing */
+      }
+    }
+
+    /**
+     * getInitials — Extrait les initiales d'un nom (max 2 lettres).
+     * @param {string} name - ex: "NYUMEA PEHA DARYL"
+     * @returns {string} - ex: "ND"
+     */
+    function getInitials(name) {
+      if (!name) return '?';
+      const words = name.trim().split(/\s+/);   /* découpe sur les espaces */
+      if (words.length === 1) return words[0][0].toUpperCase();
+      /* Prend la première lettre du premier et du dernier mot */
+      return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+    }
+
+    /**
+     * openModal / closeModal — Ouvre ou ferme une modale.
+     * @param {HTMLElement} modalEl - L'élément .modal-backdrop
+     */
+    function openModal(modalEl) {
+      modalEl.classList.add('active');
+      /* Empêche le défilement de la page derrière la modale */
+      document.body.style.overflow = 'hidden';
+      /* Trouve le premier champ ou bouton et lui donne le focus (accessibilité) */
+      const firstFocusable = modalEl.querySelector('input, button, textarea, select');
+      if (firstFocusable) firstFocusable.focus();
+    }
+
+    function closeModal(modalEl) {
+      modalEl.classList.remove('active');
+      document.body.style.overflow = '';   /* restaure le défilement */
+    }
+
+    /* Ferme la modale si on clique sur le fond semi-transparent */
+    document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+      backdrop.addEventListener('click', (e) => {
+        /* Ne ferme que si le clic est sur le backdrop lui-même, pas sur le .modal */
+        if (e.target === backdrop) closeModal(backdrop);
+      });
+    });
+
+    /* Ferme avec la touche Échap */
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-backdrop.active').forEach(closeModal);
+      }
+    });
+
+    /* ════════════════════════════════════════════════════════════════════════════
+     *  VÉRIFICATION DU STATUT DE L'API
+     * ════════════════════════════════════════════════════════════════════════════ */
+
+    /**
+     * checkApiStatus — Vérifie que l'API répond et met à jour l'indicateur.
+     * Tente un GET /api/articles (endpoint léger).
+     */
+    async function checkApiStatus() {
+      try {
+        /* Timeout de 5 secondes pour éviter d'attendre trop longtemps */
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+        const res = await fetch(`${ARTICLES_URL}`, { signal: controller.signal });
+        clearTimeout(timeoutId);  /* annule le timeout si la réponse arrive */
+
+        if (res.ok) {
+          /* API en ligne — point vert */
+          dom.statusDot.className = 'status-dot online';
+          dom.statusText.textContent = 'API connectée';
+        } else {
+          throw new Error(`HTTP ${res.status}`);   /* traité comme une erreur */
+        }
+      } catch (err) {
+        /* API hors ligne ou timeout — point rouge */
+        dom.statusDot.className = 'status-dot offline';
+        dom.statusText.textContent = 'API hors ligne';
+        showToast(`Impossible de joindre l'API : ${API_BASE}`, 'error', 6000);
+      }
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════════
+     *  CHARGEMENT ET AFFICHAGE DES ARTICLES
+     * ════════════════════════════════════════════════════════════════════════════ */
+
+    /**
+     * showLoadingSkeletons — Affiche des cartes squelettes pendant le chargement.
+     */
+    function showLoadingSkeletons() {
+      /* Génère 6 squelettes dans la grille de chargement */
+      dom.loadingGrid.innerHTML = Array.from({ length: 6 })
+        .map(() => '<div class="skeleton-card"></div>')
+        .join('');
+
+      /* Affiche le loading, cache les articles réels */
+      dom.loadingGrid.style.display = 'grid';
+      dom.articlesContainer.style.display = 'none';
+    }
+
+    /**
+     * hideLoadingSkeletons — Cache les squelettes après le chargement.
+     */
+    function hideLoadingSkeletons() {
+      dom.loadingGrid.style.display = 'none';
+      dom.articlesContainer.style.display = '';
+    }
+
+    /**
+     * fetchArticles — Charge tous les articles depuis l'API.
+     * @param {Object} filters - Filtres optionnels { categorie, auteur }
+     */
+    async function fetchArticles(filters = {}) {
+      showLoadingSkeletons();
+
+      try {
+        /* Construction de l'URL avec les paramètres de filtre */
+        const params = new URLSearchParams();
+        if (filters.categorie) params.append('categorie', filters.categorie);
+        if (filters.auteur) params.append('auteur', filters.auteur);
+
+        /* Construit l'URL finale (ex: /api/articles?categorie=Tech&auteur=Alice) */
+        const url = params.toString()
+          ? `${ARTICLES_URL}?${params.toString()}`
+          : ARTICLES_URL;
+
+        const res = await fetch(url);          /* requête GET vers l'API */
+        const data = await res.json();          /* parse la réponse JSON */
+
+        if (!res.ok || !data.success) {
+          throw new Error(data.message || 'Erreur lors du chargement');
+        }
+
+        /* Stocke les articles dans l'état global */
+        state.articles = data.data || [];
+        state.filteredArticles = state.articles;
+        state.currentPage = 1;     /* revient à la première page */
+
+        updateStats();       /* met à jour les compteurs */
+        renderArticles();    /* affiche les articles */
+
+      } catch (err) {
+        console.error('[fetchArticles] Erreur :', err);
+        showToast(`Erreur de chargement : ${err.message}`, 'error');
+        /* Affiche un état vide avec message d'erreur */
+        dom.articlesContainer.innerHTML = buildEmptyState(
+          `
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M13 3L4 14h7l-1 7 9-11h-7z"></path>
+        </svg>
+        `,
+          'Erreur de connexion',
+          `Impossible de charger les articles depuis ${API_BASE}`
+        );
+      } finally {
+        hideLoadingSkeletons();   /* toujours cacher les squelettes */
+      }
+    }
+
+    /**
+     * searchArticles — Lance une recherche full-text via l'API.
+     * Utilise l'endpoint GET /api/articles/search?query=...
+     * @param {string} query - Le texte à rechercher
+     */
+    async function searchArticles(query) {
+      if (!query.trim()) {
+        /* Si la requête est vide, recharge tous les articles */
+        fetchArticles();
+        return;
+      }
+
+      showLoadingSkeletons();
+
+      try {
+        /* Encode le query pour les caractères spéciaux (espaces, accents, etc.) */
+        const url = `${ARTICLES_URL}/search?query=${encodeURIComponent(query)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.message || 'Erreur de recherche');
+
+        /* Met à jour l'état avec les résultats de recherche */
+        state.articles = data.data || [];
+        state.filteredArticles = state.articles;
+        state.currentPage = 1;
+
+        renderArticles();   /* réaffiche avec les nouveaux résultats */
+
+        /* Toast informatif avec le nombre de résultats */
+        showToast(
+          `${state.articles.length} résultat(s) pour "${query}"`,
+          'info', 2500
+        );
+
+      } catch (err) {
+        console.error('[searchArticles] Erreur :', err);
+        showToast(`Erreur de recherche : ${err.message}`, 'error');
+      } finally {
+        hideLoadingSkeletons();
+      }
+    }
+
+    /**
+     * updateStats — Recalcule et affiche les statistiques dans les cartes stat.
+     */
+    function updateStats() {
+      const articles = state.articles;
+
+      /* Total des articles */
+      dom.statTotal.textContent = articles.length;
+
+      /* Nombre de catégories uniques (non vides) */
+      const categories = new Set(
+        articles.map(a => a.categorie).filter(Boolean)
+      );
+      dom.statCategories.textContent = categories.size;
+
+      /* Nombre d'auteurs uniques */
+      const auteurs = new Set(articles.map(a => a.auteur).filter(Boolean));
+      dom.statAuteurs.textContent = auteurs.size;
+
+      /* Date du dernier article (le premier dans le tableau trié par date DESC) */
+      if (articles.length > 0) {
+        const lastDate = articles[0].date;
+        dom.statLast.textContent = lastDate
+          ? lastDate.split('T')[0]   /* affiche juste la partie YYYY-MM-DD */
+          : '—';
+      } else {
+        dom.statLast.textContent = '—';
+      }
+    }
+
+    /**
+     * renderArticles — Construit et insère le HTML de la grille d'articles.
+     * Gère aussi la pagination côté client.
+     */
+    function renderArticles() {
+      const articles = state.filteredArticles;
+
+      /* Cas : aucun article */
+      if (articles.length === 0) {
+        dom.articlesContainer.innerHTML = buildEmptyState(
+          `
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+          <path d="M3 8l9 6 9-6"></path>
+        </svg>
+        `,
+          'Aucun article trouvé',
+          state.searchQuery
+            ? `Aucun résultat pour "${state.searchQuery}"`
+            : 'Créez votre premier article en cliquant sur "Nouvel article"'
+        );
+        dom.pagination.style.display = 'none';
+        return;
+      }
+
+      /* Calcule les bornes de la page actuelle */
+      const totalPages = Math.ceil(articles.length / state.itemsPerPage);
+      const startIdx = (state.currentPage - 1) * state.itemsPerPage;  /* index de début */
+      const endIdx = startIdx + state.itemsPerPage;                  /* index de fin */
+      const pageArticles = articles.slice(startIdx, endIdx);             /* articles de cette page */
+
+      /* Construit le HTML de toutes les cartes */
+      const cardsHtml = pageArticles.map(buildArticleCard).join('');
+
+      /* Insère dans une grille */
+      dom.articlesContainer.innerHTML = `<div class="articles-grid">${cardsHtml}</div>`;
+
+      /* Attache les gestionnaires d'événements sur chaque carte */
+      attachCardEvents();
+
+      /* Mise à jour de la pagination */
+      if (totalPages > 1) {
+        dom.pagination.style.display = 'flex';
+        dom.pageInfo.textContent = `Page ${state.currentPage} / ${totalPages}`;
+        dom.btnPrev.disabled = state.currentPage === 1;
+        dom.btnNext.disabled = state.currentPage === totalPages;
+      } else {
+        dom.pagination.style.display = 'none';
+      }
+    }
+
+    /**
+     * buildArticleCard — Génère le HTML d'une carte article.
+     * @param {Object} article - L'objet article de l'API
+     * @returns {string} - HTML de la carte
+     */
+    function buildArticleCard(article) {
+      /* Extrait un résumé du contenu (140 premiers caractères) */
+      const excerpt = article.contenu
+        ? article.contenu.substring(0, 140) + (article.contenu.length > 140 ? '...' : '')
+        : '';
+
+      /* Initiales pour l'avatar */
+      const initials = getInitials(article.auteur);
+
+      /* Date formatée */
+      const dateStr = formatDate(article.date);
+
+      /* Badge catégorie (optionnel) */
+      const categoryBadge = article.categorie
+        ? `<span class="meta-category">${escapeHtml(article.categorie)}</span>`
+        : '';
+
+      /* Retourne le HTML complet de la carte */
+      return `
+      <article
+        class        = "article-card"
+        data-id      = "${article.id}"
+        tabindex     = "0"
+        role         = "button"
+        aria-label   = "Article : ${escapeHtml(article.titre)}"
+        title        = "Cliquer pour voir le détail"
+      >
+        <!-- En-tête : ID + date -->
+        <div class="card-header">
+          <span class="article-id">#${article.id}</span>
+          <span class="article-date">${dateStr}</span>
+        </div>
+
+        <!-- Titre de l'article -->
+        <h3 class="article-title">${escapeHtml(article.titre)}</h3>
+
+        <!-- Extrait du contenu -->
+        <p class="article-excerpt">${escapeHtml(excerpt)}</p>
+
+        <!-- Métadonnées : auteur + catégorie -->
+        <div class="card-meta">
+          <div class="meta-author">
+            <div class="author-avatar">${initials}</div>
+            <span>${escapeHtml(article.auteur)}</span>
+          </div>
+          ${categoryBadge}
+        </div>
+
+        <!-- Boutons d'action rapide -->
+        <div class="card-actions">
+          <button
+            class      = "btn btn-secondary btn-sm btn-edit"
+            data-id    = "${article.id}"
+            aria-label = "Modifier l'article ${escapeHtml(article.titre)}"
+          >
+            <!-- [MODIF COMMENTEE] Action modifier avec SVG lisible -->
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="vertical-align:-2px;margin-right:4px">
+              <path d="M4 20l4.5-1 9-9-3.5-3.5-9 9z"></path>
+              <path d="M13 6l3.5 3.5"></path>
+            </svg>
+            Modifier
+          </button>
+          <button
+            class      = "btn btn-danger btn-sm btn-delete"
+            data-id    = "${article.id}"
+            data-title = "${escapeHtml(article.titre)}"
+            aria-label = "Supprimer l'article ${escapeHtml(article.titre)}"
+          >
+            <!-- [MODIF COMMENTEE] Action supprimer avec SVG lisible -->
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" style="vertical-align:-2px;margin-right:4px">
+              <path d="M4 7h16"></path>
+              <path d="M9 7V5h6v2"></path>
+              <rect x="6.5" y="7" width="11" height="13" rx="1.5"></rect>
+            </svg>
+            Supprimer
+          </button>
+        </div>
+      </article>
+    `;
+    }
+
+    /**
+     * buildEmptyState — Génère le HTML de l'état vide.
+     */
+    function buildEmptyState(icon, title, desc) {
+      return `
+      <div class="empty-state">
+        <div class="empty-state-icon">${icon}</div>
+        <h3>${title}</h3>
+        <p>${desc}</p>
+      </div>
+    `;
+    }
+
+    /**
+     * escapeHtml — Échappe les caractères HTML spéciaux pour éviter les injections XSS.
+     * @param {string} str - Texte brut
+     * @returns {string} - Texte sécurisé pour insertion dans le DOM
+     */
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    /**
+     * attachCardEvents — Attache les listeners aux boutons de chaque carte.
+     * Appelée après chaque re-rendu de la grille.
+     */
+    function attachCardEvents() {
+      /* Clic sur la carte entière → ouvre le détail */
+      document.querySelectorAll('.article-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+          /* Ne déclenche PAS si c'est un bouton (modifier/supprimer) */
+          if (e.target.closest('.btn')) return;
+          openArticleDetail(parseInt(card.dataset.id));
+        });
+
+        /* Support clavier : Enter ou Espace → même comportement que le clic */
+        card.addEventListener('keydown', (e) => {
+          if ((e.key === 'Enter' || e.key === ' ') && !e.target.closest('.btn')) {
+            e.preventDefault();
+            openArticleDetail(parseInt(card.dataset.id));
+          }
+        });
+      });
+
+      /* Boutons "Modifier" sur chaque carte */
+      document.querySelectorAll('.btn-edit').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();   /* empêche le clic de remonter à la carte */
+          openEditForm(parseInt(btn.dataset.id));
+        });
+      });
+
+      /* Boutons "Supprimer" sur chaque carte */
+      document.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openDeleteConfirm(parseInt(btn.dataset.id), btn.dataset.title);
+        });
+      });
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════════
+     *  DÉTAIL D'UN ARTICLE
+     * ════════════════════════════════════════════════════════════════════════════ */
+
+    /**
+     * openArticleDetail — Charge et affiche le détail complet d'un article.
+     * @param {number} id - L'ID de l'article à afficher
+     */
+    async function openArticleDetail(id) {
+      try {
+        /* Fetch de l'article spécifique via GET /api/articles/:id */
+        const res = await fetch(`${ARTICLES_URL}/${id}`);
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+          throw new Error(data.message || 'Article introuvable');
+        }
+
+        const a = data.data;  /* l'objet article */
+
+        /* Construit les tags sous forme de chips */
+        const tagsHtml = a.tags
+          ? a.tags.split(',')
+            .map(t => t.trim())
+            .filter(Boolean)
+            .map(t => `<span class="tag-chip">${escapeHtml(t)}</span>`)
+            .join('')
+          : '<em style="color:var(--text-dim);font-size:0.8rem">Aucun tag</em>';
+
+        /* Injecte le HTML dans le corps de la modale de détail */
+        dom.detailBody.innerHTML = `
+        <div class="detail-header">
+          <!-- Titre principal -->
+          <h3 class="detail-title">${escapeHtml(a.titre)}</h3>
+
+          <!-- Méta : auteur, date, catégorie -->
+          <div class="detail-meta-row">
+            <div class="meta-author">
+              <div class="author-avatar">${getInitials(a.auteur)}</div>
+              <strong style="color:var(--text-primary)">${escapeHtml(a.auteur)}</strong>
+            </div>
+            <span style="color:var(--text-dim)">•</span>
+            <span style="color:var(--text-muted);font-size:0.82rem">${formatDate(a.date)}</span>
+            ${a.categorie ? `<span style="color:var(--text-dim)">•</span>
+            <span class="meta-category">${escapeHtml(a.categorie)}</span>` : ''}
+            <!-- Badge ID -->
+            <span class="article-id" style="margin-left:auto">#${a.id}</span>
+          </div>
+        </div>
+
+        <!-- Contenu de l'article -->
+        <div class="detail-content">${escapeHtml(a.contenu)}</div>
+
+        <!-- Tags -->
+        <div style="margin-bottom:8px">
+          <div class="form-label" style="margin-bottom:8px">Tags</div>
+          <div class="tags-row">${tagsHtml}</div>
+        </div>
+      `;
+
+        /* Stocke l'ID courant pour les boutons Modifier/Supprimer dans le détail */
+        state.editingId = a.id;
+        state.deleteTargetId = a.id;
+        state.deleteTargetTitle = a.titre;
+
+        openModal(dom.modalDetail);
+
+      } catch (err) {
+        console.error('[openArticleDetail] Erreur :', err);
+        showToast(`Impossible de charger l'article : ${err.message}`, 'error');
+      }
+    }
+
+    /* Bouton "Modifier" dans la modale de détail */
+    dom.btnDetailEdit.addEventListener('click', () => {
+      closeModal(dom.modalDetail);
+      openEditForm(state.editingId);   /* ouvre le formulaire en mode édition */
+    });
+
+    /* Bouton "Supprimer" dans la modale de détail */
+    dom.btnDetailDelete.addEventListener('click', () => {
+      closeModal(dom.modalDetail);
+      openDeleteConfirm(state.deleteTargetId, state.deleteTargetTitle);
+    });
+
+    /* Boutons de fermeture de la modale de détail */
+    dom.btnCloseDetail.addEventListener('click', () => closeModal(dom.modalDetail));
+    dom.btnCloseDetail2.addEventListener('click', () => closeModal(dom.modalDetail));
+
+    /* ════════════════════════════════════════════════════════════════════════════
+     *  FORMULAIRE CRÉER / MODIFIER
+     * ════════════════════════════════════════════════════════════════════════════ */
+
+    /**
+     * openCreateForm — Ouvre le formulaire en mode création (champs vides).
+     */
+    function openCreateForm() {
+      state.editingId = null;   /* null = mode création */
+
+      /* Met à jour le titre et le bouton de soumission */
+      /* [MODIF COMMENTEE] Titre sans emoji */
+      dom.modalFormTitle.textContent = 'Nouvel article';
+      dom.submitBtnText.textContent = 'Créer l\'article';
+
+      /* Vide tous les champs */
+      resetForm();
+
+      openModal(dom.modalForm);
+    }
+
+    /**
+     * openEditForm — Charge l'article et ouvre le formulaire en mode édition.
+     * @param {number} id - L'ID de l'article à modifier
+     */
+    async function openEditForm(id) {
+      try {
+        /* Charge l'article depuis l'API */
+        const res = await fetch(`${ARTICLES_URL}/${id}`);
+        const data = await res.json();
+
+        if (!res.ok || !data.success) throw new Error(data.message);
+
+        const a = data.data;
+
+        /* Mode édition : stocke l'ID */
+        state.editingId = id;
+        dom.formId.value = id;
+
+        /* Met à jour les labels */
+        /* [MODIF COMMENTEE] Titre sans emoji */
+        dom.modalFormTitle.textContent = `Modifier l'article #${id}`;
+        dom.submitBtnText.textContent = 'Enregistrer les modifications';
+
+        /* Pré-remplit les champs avec les données existantes */
+        dom.formTitre.value = a.titre || '';
+        dom.formContenu.value = a.contenu || '';
+        dom.formAuteur.value = a.auteur || '';
+        /* Formate la date en YYYY-MM-DD pour l'input type="date" */
+        dom.formDate.value = a.date ? a.date.split('T')[0] : '';
+        dom.formCategorie.value = a.categorie || '';
+        dom.formTags.value = a.tags || '';
+
+        /* Cache les erreurs précédentes */
+        clearFormErrors();
+        openModal(dom.modalForm);
+
+      } catch (err) {
+        showToast(`Erreur de chargement : ${err.message}`, 'error');
+      }
+    }
+
+    /**
+     * resetForm — Vide tous les champs et masque les erreurs.
+     */
+    function resetForm() {
+      dom.formId.value = '';
+      dom.formTitre.value = '';
+      dom.formContenu.value = '';
+      dom.formAuteur.value = '';
+      dom.formDate.value = '';
+      dom.formCategorie.value = '';
+      dom.formTags.value = '';
+      clearFormErrors();
+    }
+
+    /**
+     * clearFormErrors — Cache tous les messages d'erreur du formulaire.
+     */
+    function clearFormErrors() {
+      [dom.errorTitre, dom.errorContenu, dom.errorAuteur].forEach(el => {
+        el.classList.remove('visible');
+      });
+    }
+
+    /**
+     * validateForm — Valide les champs obligatoires côté client.
+     * Retourne true si tout est valide, false sinon.
+     * Note : une validation identique existe côté serveur dans validateArticle.js.
+     */
+    function validateForm() {
+      let isValid = true;
+      clearFormErrors();
+
+      const titre = dom.formTitre.value.trim();
+      const contenu = dom.formContenu.value.trim();
+      const auteur = dom.formAuteur.value.trim();
+
+      /* Validation du titre */
+      if (!titre || titre.length < 3 || titre.length > 255) {
+        dom.errorTitre.classList.add('visible');
+        isValid = false;
+      }
+
+      /* Validation du contenu */
+      if (!contenu || contenu.length < 10) {
+        dom.errorContenu.classList.add('visible');
+        isValid = false;
+      }
+
+      /* Validation de l'auteur */
+      if (!auteur || auteur.length < 2) {
+        dom.errorAuteur.classList.add('visible');
+        isValid = false;
+      }
+
+      return isValid;
+    }
+
+    /**
+     * submitForm — Soumet le formulaire : POST (création) ou PUT (modification).
+     */
+    async function submitForm() {
+      if (!validateForm()) return;  /* stoppe si validation échoue */
+
+      /* Désactive le bouton pendant la requête */
+      dom.btnSubmitForm.disabled = true;
+      dom.submitBtnText.textContent = state.editingId ? 'Enregistrement...' : 'Création...';
+
+      try {
+        /* Construit le payload JSON à envoyer à l'API */
+        const payload = {
+          titre: dom.formTitre.value.trim(),
+          contenu: dom.formContenu.value.trim(),
+          auteur: dom.formAuteur.value.trim(),
+          date: dom.formDate.value || undefined,
+          categorie: dom.formCategorie.value.trim() || undefined,
+          tags: dom.formTags.value.trim() || undefined,
+        };
+
+        /* Détermine la méthode et l'URL selon le mode (création ou modification) */
+        const method = state.editingId ? 'PUT' : 'POST';
+        const url = state.editingId ? `${ARTICLES_URL}/${state.editingId}` : ARTICLES_URL;
+
+        /* Envoi de la requête à l'API */
+        const res = await fetch(url, {
+          method: method,
+          headers: { 'Content-Type': 'application/json' },  /* obligatoire pour body JSON */
+          body: JSON.stringify(payload),                  /* sérialise l'objet en JSON */
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+          /* Affiche les erreurs de validation retournées par l'API */
+          const errors = data.errors ? data.errors.join(', ') : data.message;
+          throw new Error(errors);
+        }
+
+        /* Succès */
+        const action = state.editingId ? 'modifié' : 'créé';
+        showToast(`Article "${data.data.titre}" ${action} avec succès.`, 'success');
+
+        closeModal(dom.modalForm);
+        fetchArticles();   /* recharge la liste */
+
+      } catch (err) {
+        console.error('[submitForm] Erreur :', err);
+        showToast(`Erreur : ${err.message}`, 'error', 5000);
+      } finally {
+        /* Réactive le bouton dans tous les cas */
+        dom.btnSubmitForm.disabled = false;
+        dom.submitBtnText.textContent = state.editingId
+          ? 'Enregistrer les modifications'
+          : 'Créer l\'article';
+      }
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════════
+     *  SUPPRESSION D'UN ARTICLE
+     * ════════════════════════════════════════════════════════════════════════════ */
+
+    /**
+     * openDeleteConfirm — Ouvre la modale de confirmation de suppression.
+     * @param {number} id    - ID de l'article à supprimer
+     * @param {string} title - Titre de l'article (pour l'affichage)
+     */
+    function openDeleteConfirm(id, title) {
+      state.deleteTargetId = id;
+      state.deleteTargetTitle = title;
+
+      /* Affiche le titre dans la modale de confirmation */
+      dom.confirmTitle.textContent = title;
+
+      openModal(dom.modalConfirm);
+    }
+
+    /**
+     * deleteArticle — Envoie une requête DELETE à l'API.
+     */
+    async function deleteArticle() {
+      const id = state.deleteTargetId;
+      if (!id) return;   /* sécurité : ne fait rien si pas d'ID cible */
+
+      /* Désactive le bouton pendant la requête */
+      dom.btnConfirmDelete.disabled = true;
+      dom.btnConfirmDelete.textContent = 'Suppression...';
+
+      try {
+        /* Requête DELETE /api/articles/:id */
+        const res = await fetch(`${ARTICLES_URL}/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+          throw new Error(data.message || 'Suppression échouée');
+        }
+
+        showToast(`Article "${state.deleteTargetTitle}" supprimé.`, 'success');
+        closeModal(dom.modalConfirm);
+        fetchArticles();   /* recharge la liste sans l'article supprimé */
+
+      } catch (err) {
+        console.error('[deleteArticle] Erreur :', err);
+        showToast(`Erreur de suppression : ${err.message}`, 'error');
+      } finally {
+        dom.btnConfirmDelete.disabled = false;
+        dom.btnConfirmDelete.textContent = 'Supprimer définitivement';
+        /* Réinitialise les cibles */
+        state.deleteTargetId = null;
+        state.deleteTargetTitle = '';
+      }
+    }
+
+    /* ════════════════════════════════════════════════════════════════════════════
+     *  RECHERCHE ET FILTRES — GESTIONNAIRES D'ÉVÉNEMENTS
+     * ════════════════════════════════════════════════════════════════════════════ */
+
+    /* Recherche en temps réel : déclenche après 400ms d'inactivité (debounce) */
+    let searchDebounceTimer = null;   /* variable pour stocker le timer */
+
+    dom.searchInput.addEventListener('input', (e) => {
+      clearTimeout(searchDebounceTimer);   /* annule le timer précédent */
+
+      const query = e.target.value.trim();
+      state.searchQuery = query;
+
+      /* Lance la recherche après 400ms sans frappe */
+      searchDebounceTimer = setTimeout(() => {
+        if (query) {
+          searchArticles(query);   /* recherche sur l'API */
+        } else {
+          fetchArticles();         /* recharge tous les articles si champ vide */
+        }
+      }, 400);
+    });
+
+    /* Bouton "Filtrer" → applique les filtres catégorie + auteur */
+    dom.btnApplyFilters.addEventListener('click', () => {
+      const categorie = dom.filterCategorie.value.trim();
+      const auteur = dom.filterAuteur.value.trim();
+
+      /* Vide la recherche si on utilise les filtres */
+      dom.searchInput.value = '';
+      state.searchQuery = '';
+
+      fetchArticles({ categorie, auteur });   /* recharge avec les filtres */
+    });
+
+    /* Bouton réinitialiser "✕" → efface tous les filtres et recharge */
+    dom.btnResetFilters.addEventListener('click', () => {
+      dom.searchInput.value = '';
+      dom.filterCategorie.value = '';
+      dom.filterAuteur.value = '';
+      state.searchQuery = '';
+      fetchArticles();   /* recharge sans filtre */
+      showToast('Filtres réinitialisés', 'info', 1500);
+    });
+
+    /* ════════════════════════════════════════════════════════════════════════════
+     *  PAGINATION
+     * ════════════════════════════════════════════════════════════════════════════ */
+
+    /* Page précédente */
+    dom.btnPrev.addEventListener('click', () => {
+      if (state.currentPage > 1) {
+        state.currentPage--;
+        renderArticles();
+        /* Défile doucement vers le haut de la grille */
+        dom.articlesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+
+    /* Page suivante */
+    dom.btnNext.addEventListener('click', () => {
+      const totalPages = Math.ceil(state.filteredArticles.length / state.itemsPerPage);
+      if (state.currentPage < totalPages) {
+        state.currentPage++;
+        renderArticles();
+        dom.articlesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+
+    /* ════════════════════════════════════════════════════════════════════════════
+     *  WIRING DES BOUTONS DES MODALES
+     * ════════════════════════════════════════════════════════════════════════════ */
+
+    /* Bouton "Nouvel article" dans la navbar */
+    dom.btnNewArticle.addEventListener('click', openCreateForm);
+
+    /* Fermeture du formulaire */
+    dom.btnCloseForm.addEventListener('click', () => closeModal(dom.modalForm));
+    dom.btnCancelForm.addEventListener('click', () => closeModal(dom.modalForm));
+
+    /* Soumission du formulaire */
+    dom.btnSubmitForm.addEventListener('click', submitForm);
+
+    /* Soumission avec Entrée dans les champs texte (sauf textarea) */
+    [dom.formTitre, dom.formAuteur, dom.formCategorie, dom.formTags, dom.formDate].forEach(input => {
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          submitForm();
+        }
+      });
+    });
+
+    /* Confirmation de suppression */
+    dom.btnConfirmDelete.addEventListener('click', deleteArticle);
+    dom.btnCancelConfirm.addEventListener('click', () => closeModal(dom.modalConfirm));
+    dom.btnCloseConfirm.addEventListener('click', () => closeModal(dom.modalConfirm));
+
+    /* ════════════════════════════════════════════════════════════════════════════
+     *  INITIALISATION AU CHARGEMENT DE LA PAGE
+     * ════════════════════════════════════════════════════════════════════════════ */
+
+    /**
+     * init — Point d'entrée principal, appelé quand le DOM est prêt.
+     */
+    async function init() {
+      /* Sécurise la base API choisie avant d'afficher l'interface */
+      await ensureApiBaseAvailable();
+
+      /* 1. Vérifie que l'API est joignable */
+      await checkApiStatus();
+
+      /* 2. Charge les articles */
+      await fetchArticles();
+
+      /* Console log utile pour le débogage */
+      console.log(`%c[Blog INF222] Frontend initialisé`, 'color:#c9a84c;font-weight:bold');
+      console.log(`%c API_BASE : ${API_BASE}`, 'color:#3dbfb8');
+      console.log(`%c Articles chargés : ${state.articles.length}`, 'color:#6ab187');
+    }
+
+    /* Lance l'initialisation dès que le DOM est entièrement chargé */
+    document.addEventListener('DOMContentLoaded', init);
+
+  </script>
+</body>
+
+</html>
