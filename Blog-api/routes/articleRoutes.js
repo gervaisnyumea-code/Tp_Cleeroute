@@ -92,10 +92,10 @@ router.get('/', articleController.obtenirArticles);
  *                 example: "Node.js est un runtime JavaScript côté serveur..."
  *               auteur:
  *                 type: string
- *                 example: "Alice Dupont"
+ *                 example: "DARYL NYUMEA PEHA"
  *               categorie:
  *                 type: string
- *                 example: "Technologie"
+ *                 example: "Technologie full-stack / DevSecOps"
  *               tags:
  *                 type: string
  *                 example: "node,javascript,backend"

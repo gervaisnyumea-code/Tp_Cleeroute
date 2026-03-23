@@ -108,8 +108,8 @@ Blog-api/
 {
   "titre": "Introduction a Node.js",
   "contenu": "Node.js est un environnement d'execution JavaScript...",
-  "auteur": "Alice",
-  "categorie": "Tech",
+  "auteur": "DARYL NYUMEA PEHA",
+  "categorie": "Technologie full-stack / DevSecOps",
   "tags": "node,javascript,backend",
   "date": "2026-03-22"
 }
