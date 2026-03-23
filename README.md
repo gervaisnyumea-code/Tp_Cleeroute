@@ -33,6 +33,8 @@ Par defaut le serveur ecoute sur le port **4000** (sauf si je definis **PORT** d
 | URL | Comportement |
 |-----|----------------|
 | `http://localhost:4000/` | **Redirection** vers la documentation Swagger (`/api-docs`), pour eviter d'afficher du JSON brut sur la racine (comportement identique sur **Render** si j'ouvre l'URL HTTPS sans chemin). |
+| `http://localhost:4000/ui` | **Redirection** vers l'interface frontend (`/Frontend/index.html`) pour une demonstration orientee utilisateur. |
+| `http://localhost:4000/Frontend/index.html` | Interface Frontend complete (cartes, filtres, modales CRUD) servie par le backend Express. |
 | `http://localhost:4000/api-docs` | Interface **Swagger UI** : liste des routes, schemas, bouton *Try it out* pour tester l'API. |
 | `http://localhost:4000/api/articles` | Reponse **JSON** (liste des articles). |
 
@@ -67,6 +69,9 @@ Elle est compatible avec le travail **en local** et avec un backend **deploye su
 
 - Si la page est servie depuis un domaine Render, le frontend cible automatiquement `https://api-blog-ruhu.onrender.com`.
 - Si la base detectee ne repond pas, une **bascule automatique** teste l'autre base (local <-> Render) et une notification l'indique.
+- Sur Render, j'accede directement au frontend via :
+  - `https://api-blog-ruhu.onrender.com/Frontend/index.html`
+  - ou plus simple `https://api-blog-ruhu.onrender.com/ui` (redirection 302 vers la route ci-dessus).
 
 ### Forcer la base API (utile pour les tests)
 
@@ -127,6 +132,12 @@ Pour ce TP, la voie la plus simple est le **runtime Node** : mon **render.yaml**
 Si vous consultez un service Render configure en **mode Docker**, il faut que l'emplacement du **Dockerfile** et le **Root Directory** correspondent a la structure du depot (racine du repo ou dossier **Blog-api/**), comme indique dans les commentaires des Dockerfiles.
 
 Sur **Render**, l'URL publique (ex. `https://mon-service.onrender.com`) ouvre la **meme redirection** vers Swagger sur la racine. Le plan **gratuit** peut mettre quelques secondes a repondre apres une periode d'inactivite (*cold start*).
+
+### Redirections resumees (utile pour la correction)
+
+- `GET /` -> `302 /api-docs`
+- `GET /ui` -> `302 /Frontend/index.html`
+- `GET /Frontend/index.html` -> page frontend
 
 ---
 

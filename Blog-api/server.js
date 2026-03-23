@@ -21,6 +21,8 @@ require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
 
 // Routes REST des articles : préfixe /api/articles (voir routes/articleRoutes.js).
 const articleRoutes = require('./routes/articleRoutes');
@@ -49,6 +51,29 @@ app.use(express.json());
 
 // CORS : autorise le navigateur à appeler cette API depuis un autre domaine (ex. frontend Vercel).
 app.use(cors());
+
+// ---------------------------------------------------------------------------
+// Frontend statique (HTML/CSS/JS) pour Render et local
+// ---------------------------------------------------------------------------
+
+// Objectif : rendre accessible /Frontend/index.html depuis le même service Render.
+// On gère 2 emplacements possibles :
+//  1) ../Frontend           (monorepo : dossier Frontend à côté de Blog-api)
+//  2) ./public/Frontend     (option si on copie le frontend dans Blog-api/public)
+const frontendCandidates = [
+  path.join(__dirname, '..', 'Frontend'),
+  path.join(__dirname, 'public', 'Frontend')
+];
+
+const frontendDir = frontendCandidates.find((dir) => fs.existsSync(dir));
+if (frontendDir) {
+  app.use('/Frontend', express.static(frontendDir));
+  // Alias en minuscule pour éviter les erreurs de casse selon l'URL saisie.
+  app.use('/frontend', express.static(frontendDir));
+  console.log(`[static] Frontend servi depuis: ${frontendDir}`);
+} else {
+  console.warn('[static] Aucun dossier Frontend trouvé. Route /Frontend/* indisponible.');
+}
 
 // Journalisation minimaliste : méthode HTTP + chemin + heure (utile en dev et sur Render Logs).
 app.use((req, res, next) => {
@@ -90,6 +115,11 @@ app.get('/', (req, res) => {
   //   }
   // });
   res.redirect(302, '/api-docs');
+});
+
+// URL conviviale pour ouvrir directement l'interface frontend de démo.
+app.get('/ui', (req, res) => {
+  res.redirect(302, '/Frontend/index.html');
 });
 
 // ---------------------------------------------------------------------------

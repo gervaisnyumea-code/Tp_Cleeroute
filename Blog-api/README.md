@@ -39,6 +39,8 @@ node server.js
 | URL (exemple local)                                  | Resultat                                                                                                                                                                                     |
 | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `http://localhost:4000/` ou `http://127.0.0.1:4000/` | **Redirection HTTP 302** vers `/api-docs` : j'affiche directement **Swagger**, au lieu d'une page JSON sur la racine (utile sur **Render** quand on ouvre l'URL HTTPS publique sans chemin). |
+| `http://localhost:4000/ui`                            | **Redirection HTTP 302** vers `/Frontend/index.html` pour ouvrir rapidement l'interface frontend.                                                                                           |
+| `http://localhost:4000/Frontend/index.html`           | Interface frontend complete servie en statique par Express (local et Render).                                                                                                               |
 | `http://localhost:4000/api-docs`                     | Interface **Swagger UI** : liste des operations, schemas, bouton **Try it out** pour envoyer des requetes reelles a l'API.                                                                   |
 | `http://localhost:4000/api/articles`                 | Reponse **JSON** (liste des articles).                                                                                                                                                       |
 
@@ -74,6 +76,9 @@ Cela evite les fautes de frappe sur les URLs et montre les schemas attendus (cha
 Le frontend de demonstration se trouve dans **`Frontend/index.html`** (a la racine du depot).  
 Il consomme cette API et couvre les operations principales : chargement, recherche, filtres, creation, modification, suppression.
 
+**Acces Render (deploye)** : `https://api-blog-ruhu.onrender.com/Frontend/index.html`  
+**Raccourci Render** : `https://api-blog-ruhu.onrender.com/ui` (redirection vers la route frontend).
+
 ### Ce qui a ete securise pour local + Render
 
 - Detection automatique de la base API selon le contexte (local ou domaine Render).
@@ -89,6 +94,12 @@ Il consomme cette API et couvre les operations principales : chargement, recherc
 2. Ouvrir `Frontend/index.html`.
 3. Verifier dans la barre de statut que l'API est **connectee**.
 4. Si besoin, relancer avec un parametre d'URL pour forcer la cible.
+
+### Redirections/backend utiles pour l'enseignant
+
+- `GET /` -> redirection vers `GET /api-docs`
+- `GET /ui` -> redirection vers `GET /Frontend/index.html`
+- `GET /frontend/...` -> alias minuscule accepte (meme contenu que `/Frontend/...`)
 
 ---
 
