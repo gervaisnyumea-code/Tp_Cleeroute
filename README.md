@@ -14,6 +14,10 @@ J'ai organise les elements comme suit :
 - **render.yaml** : fichier de configuration pour un deploiement **Render** en runtime Node (Blueprint).
 - **Dockerfile** a la racine et **Blog-api/Dockerfile** : fichiers Docker que j'ai ajoutes pour pouvoir construire une image de l'API (voir la section Docker ci-dessous).
 
+**Pour le detail des endpoints, des tests et du depannage**, j'ai regroupe les instructions dans **Blog-api/README.md** (fichier a lire en priorite pour reproduire ou corriger l'API).
+
+---
+
 ## Lancer le projet en local (sans Docker)
 
 ```bash
@@ -22,12 +26,26 @@ npm install
 npm start
 ```
 
-Une fois le serveur demarre, vous pouvez acceder a :
+Par defaut le serveur ecoute sur le port **4000** (sauf si je definis **PORT** dans un fichier `.env` — voir **Blog-api/.env.example**).
 
-- l'API : `http://localhost:4000`
-- la documentation Swagger : `http://localhost:4000/api-docs`
+### Ce que vous voyez dans le navigateur
 
-**Remarque** : pour ouvrir la doc dans le navigateur, j'utilise **localhost** ou **127.0.0.1**. L'adresse `http://0.0.0.0:4000` ne fonctionne pas correctement dans Chrome (erreur du type `ERR_ADDRESS_INVALID`), meme si le serveur ecoute bien sur `0.0.0.0` pour accepter les connexions.
+| URL | Comportement |
+|-----|----------------|
+| `http://localhost:4000/` | **Redirection** vers la documentation Swagger (`/api-docs`), pour eviter d'afficher du JSON brut sur la racine (comportement identique sur **Render** si j'ouvre l'URL HTTPS sans chemin). |
+| `http://localhost:4000/api-docs` | Interface **Swagger UI** : liste des routes, schemas, bouton *Try it out* pour tester l'API. |
+| `http://localhost:4000/api/articles` | Reponse **JSON** (liste des articles). |
+
+**Remarque** : j'utilise **localhost** ou **127.0.0.1** dans la barre d'adresse. L'URL `http://0.0.0.0:4000` est souvent refusee par le navigateur (`ERR_ADDRESS_INVALID`), meme si le serveur ecoute sur `0.0.0.0` pour accepter les connexions (notamment sur Render ou Docker).
+
+### En ligne de commande (`curl`)
+
+- Un `curl` sur la **racine** `/` recoit une reponse **302** (redirection vers `/api-docs`), pas du JSON. Pour suivre la redirection automatiquement : `curl -L http://localhost:4000/`.
+- Pour tester directement les donnees JSON sans passer par la redirection, j'utilise par exemple : `curl http://localhost:4000/api/articles`.
+
+Les exemples complets (POST, recherche, remplacement du port avec Docker) sont dans **Blog-api/README.md**.
+
+---
 
 ## Docker (optionnel)
 
@@ -43,7 +61,7 @@ docker build -t blog-api-local .
 docker run --rm -p 4000:4000 -e PORT=4000 blog-api-local
 ```
 
-Puis : `http://localhost:4000/api-docs`.
+Puis : `http://localhost:4000/` (redirection vers Swagger) ou `http://localhost:4000/api-docs`.
 
 ### Si le port 4000 est deja occupe
 
@@ -56,7 +74,7 @@ J'ai rencontre l'erreur Docker `address already in use` lorsque le port **4000**
 docker run --rm -p 4001:4000 -e PORT=4000 blog-api-local
 ```
 
-Dans ce cas, j'ouvre **`http://localhost:4001/api-docs`**.
+Dans ce cas, j'ouvre **`http://localhost:4001/`** ou **`http://localhost:4001/api-docs`**.
 
 ### Build lorsque seul le dossier Blog-api est le contexte Docker
 
@@ -74,11 +92,15 @@ Pour ce TP, la voie la plus simple est le **runtime Node** : mon **render.yaml**
 
 Si vous consultez un service Render configure en **mode Docker**, il faut que l'emplacement du **Dockerfile** et le **Root Directory** correspondent a la structure du depot (racine du repo ou dossier **Blog-api/**), comme indique dans les commentaires des Dockerfiles.
 
+Sur **Render**, l'URL publique (ex. `https://mon-service.onrender.com`) ouvre la **meme redirection** vers Swagger sur la racine. Le plan **gratuit** peut mettre quelques secondes a repondre apres une periode d'inactivite (*cold start*).
+
+---
+
 ## Documents utiles pour la correction
 
-- Description detaillee de l'API : **Blog-api/README.md**
+- **Instructions detaillees sur l'API** : **Blog-api/README.md**
 - Pistes de verification : **COMPTE_RENDU/API_BLOG_VERIFICATION.md**
-- Guide general du TP : **DOCS/TP_TAF1_CLEEROUTE/00_GUIDE_GENERAL.md**
+- Guide general TP : **DOCS/TP_TAF1_CLEEROUTE/00_GUIDE_GENERAL.md**
 - Questions CleeRoute : **DOCS/TP_TAF1_CLEEROUTE/01_QUESTIONS_CLEEROUTE.md**
 - Installation : **DOCS/TP_TAF1_CLEEROUTE/02_SETUP_ENVIRONNEMENT.md**
 - Explications sur le code : **DOCS/TP_TAF1_CLEEROUTE/03_API_BLOG_CODE.md**
@@ -87,6 +109,6 @@ Si vous consultez un service Render configure en **mode Docker**, il faut que l'
 
 ## Synthese
 
-L'API fonctionne en local, les endpoints CRUD et la recherche ont ete testes, la documentation Swagger est accessible. Le deploiement sur Render et l'usage de Docker sont decrits ci-dessus pour faciliter la reproduction de mon environnement.
+L'API fonctionne en local et en ligne, les endpoints CRUD et la recherche sont decrits dans Swagger, la racine `/` redirige vers la documentation pour faciliter la demonstration dans le navigateur. Le deploiement sur Render et l'usage de Docker sont decrits ci-dessus et dans **Blog-api/README.md**.
 
 Merci pour votre lecture.

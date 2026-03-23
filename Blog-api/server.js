@@ -73,21 +73,23 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 
 app.use('/api/articles', articleRoutes);
 
-// Route racine GET / — santé du service + rappel des endpoints (pratique pour un devoir / démo).
+// Route racine GET / — redirection vers Swagger (utile sur Render : l'URL publique sans chemin
+// ouvre directement la doc interactive au lieu d'une réponse JSON peu lisible dans le navigateur).
 app.get('/', (req, res) => {
-  res.json({
-    message: ' API Blog INF222 — Serveur opérationnel !',
-    version: '1.0.0',
-    endpoints: {
-      documentation: 'GET /api-docs',
-      articles: 'GET /api/articles',
-      creer: 'POST /api/articles',
-      lire: 'GET /api/articles/:id',
-      modifier: 'PUT /api/articles/:id',
-      supprimer: 'DELETE /api/articles/:id',
-      recherche: 'GET /api/articles/search?query=texte'
-    }
-  });
+  // res.json({
+  //   message: ' API Blog INF222 — Serveur opérationnel !',
+  //   version: '1.0.0',
+  //   endpoints: {
+  //     documentation: 'GET /api-docs',
+  //     articles: 'GET /api/articles',
+  //     creer: 'POST /api/articles',
+  //     lire: 'GET /api/articles/:id',
+  //     modifier: 'PUT /api/articles/:id',
+  //     supprimer: 'DELETE /api/articles/:id',
+  //     recherche: 'GET /api/articles/search?query=texte'
+  //   }
+  // });
+  res.redirect(302, '/api-docs');
 });
 
 // ---------------------------------------------------------------------------
