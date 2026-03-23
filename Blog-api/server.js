@@ -56,14 +56,12 @@ app.use(cors());
 // Frontend statique (HTML/CSS/JS) pour Render et local
 // ---------------------------------------------------------------------------
 
-// Objectif : rendre accessible /Frontend/index.html depuis le même service Render.
-// On gère 2 emplacements possibles :
-//  1) ../Frontend           (monorepo : dossier Frontend à côté de Blog-api)
-//  2) ./public/Frontend     (option si on copie le frontend dans Blog-api/public)
+// Objectif : rendre accessible /Frontend/index.html depuis le même service.
+// Source canonique : ./public/Frontend
+// Fallback conservé : ../Frontend (monorepo historique) pour compatibilité locale.
 const frontendCandidates = [
-  path.join(__dirname, 'Frontend'),
-  path.join(__dirname, '..', 'Frontend'),
-  path.join(__dirname, 'public', 'Frontend')
+  path.join(__dirname, 'public', 'Frontend'),
+  path.join(__dirname, '..', 'Frontend')
 ];
 
 const frontendDir = frontendCandidates.find((dir) => fs.existsSync(dir));
@@ -128,9 +126,8 @@ app.get('/ui', (req, res) => {
 // on tente un sendFile direct depuis les dossiers candidats.
 app.get(['/Frontend/index.html', '/frontend/index.html'], (req, res, next) => {
   const frontendIndexCandidates = [
-    path.join(__dirname, 'Frontend', 'index.html'),
-    path.join(__dirname, '..', 'Frontend', 'index.html'),
-    path.join(__dirname, 'public', 'Frontend', 'index.html')
+    path.join(__dirname, 'public', 'Frontend', 'index.html'),
+    path.join(__dirname, '..', 'Frontend', 'index.html')
   ];
 
   const frontendIndexPath = frontendIndexCandidates.find((filePath) => fs.existsSync(filePath));

@@ -233,13 +233,11 @@ Sur un hebergeur comme **Render**, le disque de l'instance peut etre **ephemere*
 ### Approche que j'ai privilegiee : Node sans Docker
 
 1. Pousser le depot sur GitHub (ou autre forge).
-2. **Blueprint** : utiliser **render.yaml** a la racine (configure avec `rootDir: .`).
-3. Ou **Web Service** manuel : **Root Directory** = `.`, **Build** = `npm --prefix Blog-api install`, **Start** = `npm --prefix Blog-api start`.
+2. **Blueprint** : utiliser **render.yaml** a la racine (configure avec `rootDir: Blog-api`).
+3. Ou **Web Service** manuel : **Root Directory** = `Blog-api`, **Build** = `npm install`, **Start** = `npm start`.
 
-[Mise a jour pour la route frontend] le `render.yaml` de ce depot est maintenant configure avec
-`rootDir: .`, `buildCommand: npm --prefix Blog-api install` et
-`startCommand: npm --prefix Blog-api start` afin d'inclure aussi le dossier `Frontend/`
-dans l'environnement de deploiement Render.
+Le frontend est maintenant integre dans `Blog-api/public/Frontend` pour eviter les ecarts
+entre local et Render. La route `GET /Frontend/index.html` est servie directement par l'API.
 
 ### Si le service est en mode Docker
 

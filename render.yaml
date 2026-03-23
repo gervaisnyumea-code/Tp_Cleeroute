@@ -9,14 +9,10 @@ services:
   - type: web
     name: blog-api-inf222
     runtime: node
-    # Build depuis la racine puis copie Frontend vers Blog-api/public/Frontend
-    # pour garantir /Frontend/index.html quel que soit le contexte de runtime.
-    rootDir: .
-    buildCommand: >-
-      npm --prefix Blog-api install &&
-      mkdir -p Blog-api/public/Frontend &&
-      cp -r Frontend/. Blog-api/public/Frontend/
-    startCommand: npm --prefix Blog-api start
+    # Déploiement direct depuis Blog-api (frontend déjà versionné dans public/Frontend)
+    rootDir: Blog-api
+    buildCommand: npm install
+    startCommand: npm start
     plan: free
     envVars:
       - key: NODE_ENV
