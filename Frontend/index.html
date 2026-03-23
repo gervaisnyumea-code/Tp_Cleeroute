@@ -2653,7 +2653,28 @@
     }
 
     /* Lance l'initialisation dès que le DOM est entièrement chargé */
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', () => {
+      init().catch((err) => {
+        console.error('[init] Erreur non gérée :', err);
+        const msg = err?.message || err?.name || 'Erreur inconnue au chargement';
+        showToast(`Initialisation échouée : ${msg}`, 'error', 6000);
+      });
+    });
+
+    /*
+      Filet de sécurité global contre les promesses rejetées non attrapées.
+      Évite le message navigateur "Uncaught (in promise)" en conservant un log explicite.
+    */
+    window.addEventListener('unhandledrejection', (event) => {
+      const reason = event?.reason;
+      console.error('[unhandledrejection]', reason);
+
+      const msg = reason?.message || reason?.name || 'Erreur reseau inattendue';
+      showToast(`Erreur asynchrone : ${msg}`, 'error', 5000);
+
+      // Empêche l'affichage du message par défaut du navigateur.
+      event.preventDefault();
+    });
 
   </script>
 </body>
