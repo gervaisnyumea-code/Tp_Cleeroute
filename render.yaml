@@ -9,10 +9,13 @@ services:
   - type: web
     name: blog-api-inf222
     runtime: node
-    # On build depuis la racine du repo pour garantir que le dossier Frontend/
-    # est présent au runtime (route /Frontend/index.html sur le même service).
+    # Build depuis la racine puis copie Frontend vers Blog-api/public/Frontend
+    # pour garantir /Frontend/index.html quel que soit le contexte de runtime.
     rootDir: .
-    buildCommand: npm --prefix Blog-api install
+    buildCommand: >-
+      npm --prefix Blog-api install &&
+      mkdir -p Blog-api/public/Frontend &&
+      cp -r Frontend/. Blog-api/public/Frontend/
     startCommand: npm --prefix Blog-api start
     plan: free
     envVars:

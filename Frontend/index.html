@@ -1334,7 +1334,7 @@
   <footer class="footer" role="contentinfo">
     <p>
       INF222 EC1 — TAF1 · Interface par <strong>NYUMEA PEHA DARYL GERVAIS</strong> (24H2571)
-      · <a href="https://api-blog-ruhu.onrender.com/api-docs" target="_blank" rel="noopener">Swagger UI</a>
+      · <a href="/api-docs" id="swagger-link" target="_blank" rel="noopener">Swagger UI</a>
       · <a href="https://github.com/gervaisnyumea-code/Tp_Cleeroute.git" target="_blank" rel="noopener">GitHub</a>
     </p>
   </footer>
@@ -1541,7 +1541,11 @@
      */
     const API_CANDIDATES = {
       local: 'http://localhost:4000',
-      render: 'https://api-blog-ruhu.onrender.com',
+      // Domaine courant quand l'UI est servie par Render (meme service que l'API)
+      // Fallback explicite si l'UI est ouverte en file:// ou sans origine http(s).
+      render: /^https?:\/\//i.test(window.location.origin)
+        ? window.location.origin
+        : 'https://api-blog-ruhu.onrender.com',
     };
 
     function resolveApiBase() {
@@ -1574,6 +1578,8 @@
       API_BASE = nextBase.replace(/\/+$/, '');
       ARTICLES_URL = `${API_BASE}/api/articles`;
       dom.statusText.title = `API active: ${API_BASE}`;
+      const swaggerLink = document.getElementById('swagger-link');
+      if (swaggerLink) swaggerLink.href = `${API_BASE}/api-docs`;
     }
 
     async function pingApi(baseUrl, timeoutMs = 2800) {
