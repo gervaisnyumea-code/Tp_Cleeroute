@@ -1,0 +1,7 @@
+# Quand le build Docker part de Blog-api/, on evite de copier node_modules (on
+# fera npm ci dans le Dockerfile) et les fichiers sensibles / journaux SQLite.
+
+node_modules
+.env
+blog.db-wal
+blog.db-shm

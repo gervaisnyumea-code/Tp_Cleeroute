@@ -1,0 +1,11 @@
+# Fichiers inutiles ou lourds a ne pas envoyer au demon Docker (ca accelere le
+# "build context" et evite de melanger node_modules local avec l'install propre
+# dans l'image).
+
+.git
+**/node_modules
+**/.env
+DOCS
+COMPTE_RENDU
+Blog-api/blog.db-wal
+Blog-api/blog.db-shm
