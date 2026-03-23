@@ -61,6 +61,7 @@ app.use(cors());
 //  1) ../Frontend           (monorepo : dossier Frontend à côté de Blog-api)
 //  2) ./public/Frontend     (option si on copie le frontend dans Blog-api/public)
 const frontendCandidates = [
+  path.join(__dirname, 'Frontend'),
   path.join(__dirname, '..', 'Frontend'),
   path.join(__dirname, 'public', 'Frontend')
 ];
@@ -120,6 +121,22 @@ app.get('/', (req, res) => {
 // URL conviviale pour ouvrir directement l'interface frontend de démo.
 app.get('/ui', (req, res) => {
   res.redirect(302, '/Frontend/index.html');
+});
+
+// Sécurise explicitement la route principale frontend.
+// Même si le middleware static ne trouve pas le fichier selon le contexte de déploiement,
+// on tente un sendFile direct depuis les dossiers candidats.
+app.get(['/Frontend/index.html', '/frontend/index.html'], (req, res, next) => {
+  const frontendIndexCandidates = [
+    path.join(__dirname, 'Frontend', 'index.html'),
+    path.join(__dirname, '..', 'Frontend', 'index.html'),
+    path.join(__dirname, 'public', 'Frontend', 'index.html')
+  ];
+
+  const frontendIndexPath = frontendIndexCandidates.find((filePath) => fs.existsSync(filePath));
+  if (!frontendIndexPath) return next();
+
+  return res.sendFile(frontendIndexPath);
 });
 
 // ---------------------------------------------------------------------------

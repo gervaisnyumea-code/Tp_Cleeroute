@@ -9,10 +9,11 @@ services:
   - type: web
     name: blog-api-inf222
     runtime: node
-    # Dossier du projet Node (npm install / server.js) dans ce monorepo.
-    rootDir: Blog-api
-    buildCommand: npm install
-    startCommand: npm start
+    # On build depuis la racine du repo pour garantir que le dossier Frontend/
+    # est présent au runtime (route /Frontend/index.html sur le même service).
+    rootDir: .
+    buildCommand: npm --prefix Blog-api install
+    startCommand: npm --prefix Blog-api start
     plan: free
     envVars:
       - key: NODE_ENV

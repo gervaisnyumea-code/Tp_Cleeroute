@@ -72,6 +72,9 @@ Elle est compatible avec le travail **en local** et avec un backend **deploye su
 - Sur Render, j'accede directement au frontend via :
   - `https://api-blog-ruhu.onrender.com/Frontend/index.html`
   - ou plus simple `https://api-blog-ruhu.onrender.com/ui` (redirection 302 vers la route ci-dessus).
+- [Important deploiement] Pour que cette route marche en production, le service doit inclure
+  le dossier `Frontend/` au runtime. Le `render.yaml` est regle pour cela avec `rootDir: .`
+  et des commandes prefixees `npm --prefix Blog-api ...`.
 
 ### Forcer la base API (utile pour les tests)
 
@@ -127,7 +130,9 @@ docker run --rm -p 4000:4000 -e PORT=4000 blog-api-local
 
 ### Deploiement Render : Node ou Docker ?
 
-Pour ce TP, la voie la plus simple est le **runtime Node** : mon **render.yaml** pointe vers **Blog-api** avec `npm install` et `npm start`, sans Docker obligatoire.
+Pour ce TP, la voie la plus simple est le **runtime Node** : mon **render.yaml** lance
+`npm --prefix Blog-api install` puis `npm --prefix Blog-api start` depuis la racine
+du depot (pour inclure aussi `Frontend/`), sans Docker obligatoire.
 
 Si vous consultez un service Render configure en **mode Docker**, il faut que l'emplacement du **Dockerfile** et le **Root Directory** correspondent a la structure du depot (racine du repo ou dossier **Blog-api/**), comme indique dans les commentaires des Dockerfiles.
 
