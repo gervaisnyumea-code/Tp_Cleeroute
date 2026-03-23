@@ -36,21 +36,21 @@ node server.js
 
 ### 1. Navigateur
 
-| URL (exemple local) | Resultat |
-|---------------------|----------|
+| URL (exemple local)                                  | Resultat                                                                                                                                                                                     |
+| ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `http://localhost:4000/` ou `http://127.0.0.1:4000/` | **Redirection HTTP 302** vers `/api-docs` : j'affiche directement **Swagger**, au lieu d'une page JSON sur la racine (utile sur **Render** quand on ouvre l'URL HTTPS publique sans chemin). |
-| `http://localhost:4000/api-docs` | Interface **Swagger UI** : liste des operations, schemas, bouton **Try it out** pour envoyer des requetes reelles a l'API. |
-| `http://localhost:4000/api/articles` | Reponse **JSON** (liste des articles). |
+| `http://localhost:4000/api-docs`                     | Interface **Swagger UI** : liste des operations, schemas, bouton **Try it out** pour envoyer des requetes reelles a l'API.                                                                   |
+| `http://localhost:4000/api/articles`                 | Reponse **JSON** (liste des articles).                                                                                                                                                       |
 
-Sur **Render**, je remplace `localhost:4000` par mon URL publique, par exemple `https://mon-service.onrender.com/`. Le plan gratuit peut **mettre en veille** le service : le premier acces apres inactivite peut prendre une dizaine de secondes (*cold start*).
+Sur **Render**, je remplace `localhost:4000` par mon URL publique, par exemple `https://mon-service.onrender.com/`. Le plan gratuit peut **mettre en veille** le service : le premier acces apres inactivite peut prendre une dizaine de secondes (_cold start_).
 
 **Important** : dans la barre d'adresse je n'utilise pas `0.0.0.0` comme hote (souvent erreur dans le navigateur). J'utilise **localhost**, **127.0.0.1** (local) ou le **domaine Render** (production).
 
 ### 2. Ligne de commande (`curl`)
 
-- **`GET /` (racine)** : le serveur repond par une **redirection 302** vers `/api-docs`, pas par un corps JSON.  
+- **`GET /` (racine)** : le serveur repond par une **redirection 302** vers `/api-docs`, pas par un corps JSON.
   - Pour **suivre** la redirection et recuperer le HTML de Swagger :  
-    `curl -L http://localhost:4000/`  
+    `curl -L http://localhost:4000/`
   - Pour **voir** les en-tetes sans suivre :  
     `curl -i http://localhost:4000/`  
     (on voit `302` et `Location: /api-docs`).
@@ -83,7 +83,7 @@ Sur **Render**, les variables utiles (**PORT**, parfois **RENDER_EXTERNAL_URL**)
 
 ## Endpoints implementes
 
-- `GET /` — **redirection** vers `/api-docs` (pas de JSON sur la racine ; voir section *curl* ci-dessus).
+- `GET /` — **redirection** vers `/api-docs` (pas de JSON sur la racine ; voir section _curl_ ci-dessus).
 - `GET /api/articles` — liste des articles (filtres possibles selon les parametres prevus dans le code).
 - `GET /api/articles/:id` — detail d'un article.
 - `POST /api/articles` — creation (corps JSON valide selon la validation).
